@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 376e514bc8153024bba3d54cceec18db, type: 3}
-  m_Name: level_003
+  m_Name: L522
   m_EditorClassIdentifier: 
   version: 0.1
   levelId: L522
-  displayName: Level E
   width: 10
   height: 8
-  playerStart: {x: 6, y: 4}
+  playerStart: {x: 4, y: 2}
   cells:
   - x: 0
     y: 0
@@ -214,7 +213,7 @@ MonoBehaviour:
   - x: 8
     y: 4
     baseType: 1
-    hasGoal: 0
+    hasGoal: 1
   - x: 9
     y: 4
     baseType: 2
@@ -340,5 +339,6 @@ MonoBehaviour:
     baseType: 2
     hasGoal: 0
   boxStarts:
-  - {x: 5, y: 5}
-  - {x: 5, y: 6}
+  - {x: 5, y: 2}
+  - {x: 6, y: 5}
+  - {x: 2, y: 6}

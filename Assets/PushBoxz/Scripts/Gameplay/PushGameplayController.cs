@@ -155,6 +155,11 @@ namespace PushBoxz.Gameplay
 
         public PushResult TryPush(Vector2Int directionOffset)
         {
+            return TryPush(directionOffset, false);
+        }
+
+        public PushResult TryPush(Vector2Int directionOffset, bool movePlayerIntoBoxCell)
+        {
             EnsureLoaded();
 
             if (IsBusy)
@@ -188,6 +193,11 @@ namespace PushBoxz.Gameplay
             boxesByPosition.Remove(boxPosition);
             boxesByPosition.Add(target, box);
             box.Position = target;
+            if (movePlayerIntoBoxCell)
+            {
+                player.Position = boxPosition;
+            }
+
             player.ActionState = PlayerActionState.Pushing;
 
             return PushResult.Success(box, boxPosition, target);

@@ -18,7 +18,6 @@ namespace PushBoxz.Editor
             var level = ScriptableObject.CreateInstance<LevelDataAsset>();
             level.version = "0.1";
             level.levelId = "sample_push_level";
-            level.displayName = "Sample Push Level";
             level.width = 5;
             level.height = 6;
             level.playerStart = new Vector2Int(2, 1);

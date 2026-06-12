@@ -60,6 +60,12 @@ namespace PushBoxz.Presentation
             set { SetMovementMode(value); }
         }
 
+        public bool BuildOnStart
+        {
+            get { return buildOnStart; }
+            set { buildOnStart = value; }
+        }
+
         private void Awake()
         {
             EnsureSceneBuilder();
@@ -126,6 +132,11 @@ namespace PushBoxz.Presentation
 
             if (!moveResult)
             {
+                if (movementMode == PlayerMovementMode.GridStep && TryPushFromGridMove(direction))
+                {
+                    return true;
+                }
+
                 RefreshFocusedBox();
                 return false;
             }
@@ -230,13 +241,23 @@ namespace PushBoxz.Presentation
 
         public bool TryPush()
         {
+            return TryPushInternal(Vector2Int.zero, false);
+        }
+
+        private bool TryPushFromGridMove(Direction direction)
+        {
+            return TryPushInternal(DirectionUtility.ToOffset(direction), true);
+        }
+
+        private bool TryPushInternal(Vector2Int forcedDirectionOffset, bool movePlayerIntoBoxCell)
+        {
             if (pushBusy || IsCompleted || Time.time < nextPushAllowedTime)
             {
                 return false;
             }
 
             var success = false;
-            if (!TryGetFocusedPush(out var boxView, out var directionOffset, out var from, out var to))
+            if (!TryGetFocusedPush(forcedDirectionOffset, out var boxView, out var directionOffset, out var from, out var to))
             {
                 return false;
             }
@@ -254,7 +275,7 @@ namespace PushBoxz.Presentation
                     }
                 }
 
-                pushResult = gameplay.TryPush(directionOffset);
+                pushResult = gameplay.TryPush(directionOffset, movePlayerIntoBoxCell);
                 success = pushResult.success;
                 from = pushResult.from;
                 to = pushResult.to;
@@ -262,6 +283,10 @@ namespace PushBoxz.Presentation
             else if (useLocalFallbackWhenGameplayMissing)
             {
                 success = TryLocalPush(directionOffset, out from, out to);
+                if (success && movePlayerIntoBoxCell)
+                {
+                    playerGridPosition = from;
+                }
             }
 
             if (!success)
@@ -275,7 +300,7 @@ namespace PushBoxz.Presentation
             }
 
             StepCount++;
-            playerGridPosition = gameplay.HasLevel ? gameplay.Player.Position : playerGridPosition;
+            playerGridPosition = gameplay.HasLevel ? gameplay.Player.Position : movePlayerIntoBoxCell ? from : playerGridPosition;
             if (movementMode == PlayerMovementMode.GridStep)
             {
                 SyncPlayerTransform();
@@ -481,17 +506,17 @@ namespace PushBoxz.Presentation
                 return;
             }
 
-            if (TryGetFocusedPush(out var nextFocusedBox, out _, out _, out _))
+            if (TryGetFocusedPush(Vector2Int.zero, out var nextFocusedBox, out _, out _, out _))
             {
                 focusedBox = nextFocusedBox;
                 focusedBox.SetFocused(true);
             }
         }
 
-        private bool TryGetFocusedPush(out BoxView boxView, out Vector2Int directionOffset, out Vector2Int from, out Vector2Int to)
+        private bool TryGetFocusedPush(Vector2Int forcedDirectionOffset, out BoxView boxView, out Vector2Int directionOffset, out Vector2Int from, out Vector2Int to)
         {
             boxView = null;
-            directionOffset = GetInteractionOffset();
+            directionOffset = forcedDirectionOffset != Vector2Int.zero ? forcedDirectionOffset : GetInteractionOffset();
             from = Vector2Int.zero;
             to = Vector2Int.zero;
 

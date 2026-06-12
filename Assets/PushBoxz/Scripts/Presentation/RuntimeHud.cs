@@ -23,7 +23,7 @@ namespace PushBoxz.Presentation
             GUILayout.BeginArea(new Rect(padding, padding, 260, 160), GUI.skin.box);
 
             var levelName = session != null && session.LevelData != null
-                ? session.LevelData.displayName
+                ? session.LevelData.levelId
                 : "No Level";
 
             GUILayout.Label(levelName);

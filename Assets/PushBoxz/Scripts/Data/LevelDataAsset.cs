@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using PushBoxz.Core;
 using UnityEngine;
 
 namespace PushBoxz.Data
@@ -8,12 +10,12 @@ namespace PushBoxz.Data
     {
         public string version = "0.1";
         public string levelId = "level_001";
-        public string displayName = "Level 001";
         public int width = 5;
         public int height = 6;
         public Vector2Int playerStart = Vector2Int.zero;
         public List<TileCell> cells = new List<TileCell>();
         public List<Vector2Int> boxStarts = new List<Vector2Int>();
+        public List<LevelSolutionStep> solutionSteps = new List<LevelSolutionStep>();
 
         public BaseTileType GetBaseTile(int x, int y)
         {
@@ -91,5 +93,23 @@ namespace PushBoxz.Data
         {
             return position.x >= 0 && position.y >= 0 && position.x < width && position.y < height;
         }
+    }
+
+    public enum LevelSolutionStepKind
+    {
+        Move = 0,
+        Push = 1
+    }
+
+    [Serializable]
+    public class LevelSolutionStep
+    {
+        public LevelSolutionStepKind kind;
+        public int boxId = -1;
+        public Direction direction;
+        public Vector2Int playerFrom;
+        public Vector2Int playerTo;
+        public Vector2Int boxFrom;
+        public Vector2Int boxTo;
     }
 }

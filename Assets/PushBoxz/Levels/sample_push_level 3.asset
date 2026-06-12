@@ -10,109 +10,135 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 376e514bc8153024bba3d54cceec18db, type: 3}
-  m_Name: LevelData
+  m_Name: sample_push_level 3
   m_EditorClassIdentifier: 
   version: 0.1
-  levelId: level_001
-  displayName: Level 001
+  levelId: sample_push_level
   width: 5
   height: 6
-  playerStart: {x: 0, y: 0}
+  playerStart: {x: 2, y: 1}
   cells:
   - x: 0
     y: 0
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
     y: 0
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 2
     y: 0
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 3
     y: 0
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 4
     y: 0
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 0
     y: 1
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
     y: 1
     baseType: 1
+    hasGoal: 0
   - x: 2
     y: 1
     baseType: 1
+    hasGoal: 0
   - x: 3
     y: 1
     baseType: 1
+    hasGoal: 0
   - x: 4
     y: 1
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 0
     y: 2
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
     y: 2
     baseType: 1
+    hasGoal: 0
   - x: 2
     y: 2
     baseType: 1
+    hasGoal: 0
   - x: 3
     y: 2
     baseType: 1
+    hasGoal: 0
   - x: 4
     y: 2
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 0
     y: 3
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
     y: 3
     baseType: 1
+    hasGoal: 0
   - x: 2
     y: 3
     baseType: 1
+    hasGoal: 0
   - x: 3
     y: 3
     baseType: 1
+    hasGoal: 0
   - x: 4
     y: 3
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 0
     y: 4
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
+    y: 4
+    baseType: 1
+    hasGoal: 0
+  - x: 2
     y: 4
     baseType: 1
     hasGoal: 1
-  - x: 2
-    y: 4
-    baseType: 1
-    hasGoal: 1
   - x: 3
     y: 4
     baseType: 1
     hasGoal: 1
   - x: 4
     y: 4
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 0
     y: 5
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 1
     y: 5
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 2
     y: 5
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 3
     y: 5
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   - x: 4
     y: 5
-    baseType: 1
+    baseType: 2
+    hasGoal: 0
   boxStarts:
-  - {x: 1, y: 3}
-  - {x: 2, y: 3}
+  - {x: 2, y: 2}
   - {x: 3, y: 3}
+  solutionSteps: []
