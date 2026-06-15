@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Lightweight fallback HUD used when a Canvas-driven UI is not present.
+    /// </summary>
     public class RuntimeHud : MonoBehaviour
     {
         [SerializeField] private GameSession session;

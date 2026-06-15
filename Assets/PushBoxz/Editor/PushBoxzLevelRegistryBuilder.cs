@@ -8,6 +8,10 @@ using UnityEngine;
 
 namespace PushBoxz.Editor
 {
+    /// <summary>
+    /// Rebuilds the official level registry from LevelDataAsset files and keeps the
+    /// Resources asset available for runtime menu loading.
+    /// </summary>
     public static class PushBoxzLevelRegistryBuilder
     {
         private const string LevelsFolder = "Assets/PushBoxz/Levels";
@@ -90,6 +94,8 @@ namespace PushBoxz.Editor
             var addedLevels = new HashSet<LevelDataAsset>();
             if (registry.levels != null)
             {
+                // Preserve the manually curated order and enabled/unlocked flags, then
+                // append newly discovered playable levels at the end.
                 for (var i = 0; i < registry.levels.Count; i++)
                 {
                     var previous = registry.levels[i];

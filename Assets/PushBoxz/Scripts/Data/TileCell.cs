@@ -2,6 +2,10 @@ using System;
 
 namespace PushBoxz.Data
 {
+    /// <summary>
+    /// Serializable terrain cell used by LevelDataAsset.
+    /// Goals are stored as an overlay so boxes can stand on goals at runtime without mutating source data.
+    /// </summary>
     [Serializable]
     public class TileCell
     {

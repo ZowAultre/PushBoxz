@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Thin input adapter. It translates keyboard input into GameSession commands.
+    /// </summary>
     public class PlayerInputController : MonoBehaviour
     {
         [SerializeField] private GameSession session;

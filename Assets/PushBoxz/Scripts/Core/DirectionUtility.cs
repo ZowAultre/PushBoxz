@@ -2,8 +2,14 @@ using UnityEngine;
 
 namespace PushBoxz.Core
 {
+    /// <summary>
+    /// Shared conversion helpers that keep grid logic and scene-facing logic consistent.
+    /// </summary>
     public static class DirectionUtility
     {
+        /// <summary>
+        /// Converts a gameplay direction to a one-cell offset in level-grid coordinates.
+        /// </summary>
         public static Vector2Int ToOffset(Direction direction)
         {
             switch (direction)
@@ -21,6 +27,9 @@ namespace PushBoxz.Core
             }
         }
 
+        /// <summary>
+        /// Converts a gameplay direction to the corresponding world-space yaw rotation.
+        /// </summary>
         public static Quaternion ToRotation(Direction direction)
         {
             switch (direction)

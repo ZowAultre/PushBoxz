@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace PushBoxz.Data
 {
+    /// <summary>
+    /// Central registry for playable official levels plus shared presentation assets.
+    /// Runtime menus read this asset instead of scanning project folders.
+    /// </summary>
     [CreateAssetMenu(menuName = "PushBoxz/Level Scene Builder Registry", fileName = "LevelSceneBuilderRegistry")]
     public class LevelSceneBuilderRegistry : ScriptableObject
     {
@@ -28,6 +32,9 @@ namespace PushBoxz.Data
         public List<LevelSceneBuilderRegistryEntry> levels = new List<LevelSceneBuilderRegistryEntry>();
     }
 
+    /// <summary>
+    /// Per-level menu state stored with the official level list.
+    /// </summary>
     [Serializable]
     public class LevelSceneBuilderRegistryEntry
     {

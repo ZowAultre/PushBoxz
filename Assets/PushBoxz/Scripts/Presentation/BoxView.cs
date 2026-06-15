@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Scene-side representation of a box.
+    /// It handles animation and visual state while PushGameplayController owns the rules.
+    /// </summary>
     public class BoxView : MonoBehaviour
     {
         private GridWorldMapper mapper;
@@ -68,6 +72,7 @@ namespace PushBoxz.Presentation
             CacheRenderer();
             if (targetRenderer != null)
             {
+                // MaterialPropertyBlock avoids instantiating materials while still allowing per-box color feedback.
                 propertyBlock ??= new MaterialPropertyBlock();
                 targetRenderer.GetPropertyBlock(propertyBlock);
                 propertyBlock.SetColor("_Color", isFocused ? focusedColor : isOnGoal ? completedColor : baseColor);

@@ -12,6 +12,11 @@ using UnityEngine;
 
 namespace PushBoxz.Editor
 {
+    /// <summary>
+    /// Main authoring tool for PushBoxz levels. It edits LevelDataAsset data,
+    /// validates grid content, supports reverse-design generation, and stores shared
+    /// runtime presentation assets through the level registry.
+    /// </summary>
     public class PushBoxzLevelEditorWindow : EditorWindow
     {
         private const string LevelsFolder = "Assets/PushBoxz/Levels";
@@ -138,6 +143,8 @@ namespace PushBoxz.Editor
 
         private class AutoGenerationMemory
         {
+            // Short-term generation memory is used to discourage oscillation,
+            // repeated routes, and interacting with boxes that already returned to goals.
             public readonly Dictionary<int, List<Vector2Int>> boxHistory = new Dictionary<int, List<Vector2Int>>();
             public readonly Dictionary<Vector2Int, int> cellVisits = new Dictionary<Vector2Int, int>();
             public readonly HashSet<int> returnedToGoalBoxes = new HashSet<int>();
@@ -249,6 +256,8 @@ namespace PushBoxz.Editor
 
         private void OnEnable()
         {
+            // Registry-backed assets are loaded first so prefab/audio selections survive
+            // window reopen and are also available to runtime level building.
             LoadSceneAssetsFromRegistry();
             if (!RestoreDraftState())
             {
@@ -510,6 +519,8 @@ namespace PushBoxz.Editor
 
             if (EditorGUI.EndChangeCheck())
             {
+                // These settings are shared presentation configuration rather than
+                // per-level grid data, so they are persisted on the registry asset.
                 SaveSceneAssetsToRegistry();
                 ApplyBuilderAssetSettingsToScene();
                 SaveDraftState();
@@ -935,6 +946,8 @@ namespace PushBoxz.Editor
 
         private void GenerateRandomReverseLevel()
         {
+            // Reverse generation starts from a solved state where every box is already
+            // on a goal, then applies legal pull actions to create a solvable start state.
             var random = autoUseRandomSeed ? new System.Random(Environment.TickCount) : new System.Random(autoSeed);
             if (autoUseRandomSeed)
             {
@@ -1008,6 +1021,8 @@ namespace PushBoxz.Editor
             var guardCount = 0;
             while (completedSteps < autoReverseStepCount && guardCount++ < autoReverseStepCount * AutoGenerationGuardMultiplier)
             {
+                // Keep a small rollback window so the generator can escape local dead ends
+                // without discarding the whole candidate level.
                 var snapshot = CreateAutoGenerationSnapshot(boxStates, visited, memory, currentBoxIndex, playerPosition, pullDirection);
                 var actionChoice = PickAutoAction(random);
                 var acted = false;
@@ -1147,6 +1162,8 @@ namespace PushBoxz.Editor
                 return false;
             }
 
+            // Roll back by a random short distance. This preserves variety while avoiding
+            // early termination when one branch blocks all pull directions.
             var rollbackSteps = random.Next(1, Mathf.Min(AutoGenerationRollbackWindow, snapshots.Count) + 1);
             var snapshotIndex = snapshots.Count - rollbackSteps;
             var snapshot = snapshots[snapshotIndex];
@@ -2104,6 +2121,9 @@ namespace PushBoxz.Editor
             ApplyToAsset(asset);
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssets();
+
+            // Save once before renaming so Unity has a valid asset path, then apply the
+            // editor state again after rename to keep the serialized levelId in sync.
             var renameError = TryRenameAssetToLevelId(asset, out var renamedAsset);
             if (renamedAsset != null)
             {
@@ -2172,6 +2192,8 @@ namespace PushBoxz.Editor
 
         private string GetNewLevelIdFromOfficialRegistry()
         {
+            // New authoring IDs follow the official registry count, producing L001,
+            // L002, ... while still skipping any existing asset with the same ID.
             var nextIndex = GetOfficialRegistryLevelCount() + 1;
             var candidate = "L" + nextIndex.ToString("D3");
             while (FindExistingAssetByLevelId(candidate) != null)
@@ -2309,6 +2331,8 @@ namespace PushBoxz.Editor
 
         private void LoadSceneAssetsFromRegistry()
         {
+            // The registry is the single source of truth for runtime prefabs, audio, and
+            // global UI font choices. The editor mirrors those fields for convenient editing.
             sceneAssetRegistry = Resources.Load<LevelSceneBuilderRegistry>(PushBoxzLevelRegistryBuilder.RegistryResourceName);
             if (sceneAssetRegistry == null)
             {
@@ -2870,6 +2894,8 @@ namespace PushBoxz.Editor
                 return;
             }
 
+            // SessionState keeps unsaved editing work alive across window close/reopen
+            // during the same Unity editor session without creating temporary assets.
             var draft = new DraftState
             {
                 assetPath = loadedAsset != null ? AssetDatabase.GetAssetPath(loadedAsset) : string.Empty,

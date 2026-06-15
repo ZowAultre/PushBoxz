@@ -9,6 +9,10 @@ using UnityEngine.UI;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Drives the product-facing menu flow: cover screen, level select, gameplay HUD,
+    /// completion popup, and the runtime custom-level editor.
+    /// </summary>
     public class LevelMenuController : MonoBehaviour
     {
         private const string RuntimeHostName = "PushBoxz Runtime Host";
@@ -94,6 +98,9 @@ namespace PushBoxz.Presentation
         private bool activeLevelCompletionHandled;
         private bool levelSelectDirty = true;
         private MenuScreen screen = MenuScreen.Cover;
+
+        // Runtime-created levels are kept separate from official LevelDataAsset entries.
+        // This lets players build and delete creative-mode levels without touching project assets.
         private int customWidth = 5;
         private int customHeight = 5;
         private string customLevelId = string.Empty;
@@ -216,6 +223,8 @@ namespace PushBoxz.Presentation
 
         private void OnGUI()
         {
+            // OnGUI remains as a safety fallback for development scenes that have not
+            // wired the Canvas references yet; production UI should use the Canvas fields.
             SyncCanvasUi();
             switch (screen)
             {
@@ -503,6 +512,8 @@ namespace PushBoxz.Presentation
 
         private void HandleCustomEditorKeyboardInput()
         {
+            // UI5 mirrors the editor's fast design workflow: WASD changes the in-grid
+            // player position and F tests the selected push/pull interaction immediately.
             if (IsTypingInInputField())
             {
                 return;
@@ -740,6 +751,8 @@ namespace PushBoxz.Presentation
                 return;
             }
 
+            // A fresh runtime host is created for every level load so old terrain,
+            // objects, events, and undo history cannot leak into the next level.
             DestroyRuntimeHost();
 
             runtimeHost = new GameObject(RuntimeHostName);
@@ -819,6 +832,8 @@ namespace PushBoxz.Presentation
                 return;
             }
 
+            // Delete mode is intentionally limited to creative-mode entries;
+            // official levels remain managed by the project registry.
             customLevelDeleteMode = !customLevelDeleteMode;
             MarkLevelSelectDirty();
             SyncCanvasUi();
@@ -1723,6 +1738,8 @@ namespace PushBoxz.Presentation
                 return;
             }
 
+            // The in-game editor uses sprites rather than text labels so UI5 stays
+            // consistent with the shipped tile art and works well on touch/canvas UI.
             ClearButtonLabel(button);
 
             var image = button.targetGraphic as Image;
@@ -2260,6 +2277,8 @@ namespace PushBoxz.Presentation
 
             if (levelListMode == LevelListMode.Custom)
             {
+                // Creative-mode levels are loaded from JSON in persistentDataPath.
+                // They never require AssetDatabase and therefore work in player builds.
                 var customLevels = CustomLevelStorage.LoadLevels();
                 for (var i = 0; i < customLevels.Count; i++)
                 {

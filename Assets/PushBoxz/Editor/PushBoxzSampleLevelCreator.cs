@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace PushBoxz.Editor
 {
+    /// <summary>
+    /// Small development utility for creating a known-good sample level asset.
+    /// Kept separate from the main editor so test content generation stays optional.
+    /// </summary>
     public static class PushBoxzSampleLevelCreator
     {
         private const string LevelsFolder = "Assets/PushBoxz/Levels";

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace PushBoxz.Gameplay
 {
+    /// <summary>
+    /// Runtime-only player state for grid position, facing, and temporary action lockout.
+    /// </summary>
     public sealed class PlayerRuntimeState
     {
         public Vector2Int Position { get; internal set; }

@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PushBoxz.Editor
 {
+    /// <summary>
+    /// Adds inspector and asset-context shortcuts for opening a LevelDataAsset directly
+    /// in the dedicated PushBoxz level editor.
+    /// </summary>
     [CustomEditor(typeof(LevelDataAsset))]
     public class LevelDataAssetEditor : UnityEditor.Editor
     {

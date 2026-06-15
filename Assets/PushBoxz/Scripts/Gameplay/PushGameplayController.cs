@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PushBoxz.Gameplay
 {
+    /// <summary>
+    /// Pure gameplay controller for Sokoban rules.
+    /// It owns runtime state for player/boxes and performs validation without depending on GameObjects.
+    /// </summary>
     public sealed class PushGameplayController
     {
         private readonly List<BoxRuntimeState> boxes = new List<BoxRuntimeState>();
@@ -16,6 +20,9 @@ namespace PushBoxz.Gameplay
         private PlayerRuntimeState player;
         private int movingBoxCount;
 
+        /// <summary>
+        /// Level definition currently loaded by the controller. This data is treated as read-only.
+        /// </summary>
         public LevelDataAsset CurrentLevel
         {
             get { return level; }
@@ -51,6 +58,9 @@ namespace PushBoxz.Gameplay
             get { return HasLevel && boxes.Count > 0 && boxes.Count == goals.Count && AreAllBoxesOnGoals(); }
         }
 
+        /// <summary>
+        /// Rebuilds runtime state from a LevelDataAsset. This is the boundary between asset data and play state.
+        /// </summary>
         public void LoadLevel(LevelDataAsset levelData)
         {
             if (levelData == null)
@@ -93,6 +103,10 @@ namespace PushBoxz.Gameplay
             }
         }
 
+        /// <summary>
+        /// Attempts a one-cell player move without pushing boxes.
+        /// Grid-step mode calls this first, then falls back to push-on-move when blocked by a box.
+        /// </summary>
         public bool Move(Direction direction)
         {
             EnsureLoaded();
@@ -147,6 +161,9 @@ namespace PushBoxz.Gameplay
             player.Facing = facing;
         }
 
+        /// <summary>
+        /// Attempts to push the box in the player's current facing direction.
+        /// </summary>
         public PushResult TryPush()
         {
             EnsureLoaded();
@@ -167,6 +184,7 @@ namespace PushBoxz.Gameplay
                 return PushResult.Failure(PushFailReason.PlayerBusy);
             }
 
+            // Clamp external offsets so callers cannot accidentally push more than one grid cell.
             directionOffset = new Vector2Int(Mathf.Clamp(directionOffset.x, -1, 1), Mathf.Clamp(directionOffset.y, -1, 1));
             if (directionOffset == Vector2Int.zero)
             {
@@ -270,6 +288,9 @@ namespace PushBoxz.Gameplay
             }
         }
 
+        /// <summary>
+        /// Restores runtime positions from an undo snapshot.
+        /// </summary>
         public void RestoreState(Vector2Int playerPosition, Direction facing, IReadOnlyList<Vector2Int> boxPositions)
         {
             EnsureLoaded();

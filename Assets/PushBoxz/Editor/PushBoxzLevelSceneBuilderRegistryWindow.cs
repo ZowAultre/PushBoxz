@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace PushBoxz.Editor
 {
+    /// <summary>
+    /// Editor window for maintaining the official level list, including order,
+    /// enabled state, and initial unlock state.
+    /// </summary>
     public class PushBoxzLevelSceneBuilderRegistryWindow : EditorWindow
     {
         private LevelSceneBuilderRegistry registry;
@@ -118,6 +122,8 @@ namespace PushBoxz.Editor
                 return;
             }
 
+            // ReorderableList gives designers the familiar Unity drag handle for changing
+            // progression order without editing the ScriptableObject by hand.
             levelList = new ReorderableList(serializedRegistry, levelsProperty, true, true, true, true);
             levelList.drawHeaderCallback = DrawLevelListHeader;
             levelList.drawElementCallback = DrawEntryElement;

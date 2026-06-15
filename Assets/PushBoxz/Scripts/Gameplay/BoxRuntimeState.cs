@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace PushBoxz.Gameplay
 {
+    /// <summary>
+    /// Runtime-only box state. The controller mutates this instead of editing LevelDataAsset.
+    /// </summary>
     public sealed class BoxRuntimeState
     {
         public int Id { get; }

@@ -2,6 +2,10 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Converts between logical grid coordinates and Unity world positions.
+    /// Kept serializable so builders and sessions share the exact same mapping.
+    /// </summary>
     [System.Serializable]
     public class GridWorldMapper
     {

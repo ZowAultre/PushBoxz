@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Builds a playable scene hierarchy from LevelDataAsset.
+    /// It is responsible for visuals only; gameplay state remains in GameSession/PushGameplayController.
+    /// </summary>
     public class LevelSceneBuilder : MonoBehaviour
     {
         [Header("Mapping")]
@@ -211,6 +215,7 @@ namespace PushBoxz.Presentation
                 return;
             }
 
+            // Offset the spawned level for left-side UI while keeping camera framing anchored to the original map center.
             var cameraFrameOrigin = mapper.Origin;
             ApplyUiOffsetForLevel(level);
 
@@ -410,6 +415,7 @@ namespace PushBoxz.Presentation
             GameObject instance;
             if (prefab != null)
             {
+                // Prefabs keep their authored materials; fallback primitives receive generated/configured materials below.
                 instance = Instantiate(prefab, parent);
                 usesPrefab = true;
             }

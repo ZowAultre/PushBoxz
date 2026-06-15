@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace PushBoxz.Data
 {
+    /// <summary>
+    /// Runtime persistence for player-created levels.
+    /// Official levels live as project assets; custom levels are stored as JSON in persistentDataPath.
+    /// </summary>
     public static class CustomLevelStorage
     {
         private const string FolderName = "CustomLevels";
@@ -45,6 +49,9 @@ namespace PushBoxz.Data
             return levels;
         }
 
+        /// <summary>
+        /// Saves or overwrites a custom level by levelId.
+        /// </summary>
         public static LevelDataAsset SaveLevel(LevelDataAsset source)
         {
             if (source == null)
@@ -73,6 +80,9 @@ namespace PushBoxz.Data
             return ToLevelDataAsset(record);
         }
 
+        /// <summary>
+        /// Removes a saved custom level. Returns false when the id does not exist.
+        /// </summary>
         public static bool DeleteLevel(string levelId)
         {
             if (string.IsNullOrWhiteSpace(levelId))
@@ -90,6 +100,10 @@ namespace PushBoxz.Data
             return removed;
         }
 
+        /// <summary>
+        /// Creates a transient LevelDataAsset instance from runtime/custom data.
+        /// The returned asset is not added to the Unity AssetDatabase.
+        /// </summary>
         public static LevelDataAsset CreateRuntimeLevel(
             string levelId,
             int width,

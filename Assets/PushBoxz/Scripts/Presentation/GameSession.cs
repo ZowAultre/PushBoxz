@@ -7,6 +7,10 @@ using UnityEngine;
 
 namespace PushBoxz.Presentation
 {
+    /// <summary>
+    /// Runtime game orchestrator.
+    /// It bridges pure gameplay rules, scene objects, input commands, audio, undo, and completion flow.
+    /// </summary>
     public class GameSession : MonoBehaviour
     {
         private const float PushDuration = 0.12f;
@@ -32,6 +36,9 @@ namespace PushBoxz.Presentation
         private float nextPushAllowedTime;
         private AudioSource audioSource;
 
+        /// <summary>
+        /// Full gameplay snapshot used by undo. It captures logical state and continuous-position state.
+        /// </summary>
         private struct SessionSnapshot
         {
             public Vector2Int playerGridPosition;
@@ -191,6 +198,7 @@ namespace PushBoxz.Presentation
             facingDirection = DirectionFromInput(clampedInput);
             SyncPlayerFacing();
 
+            // Continuous movement checks collision against nearby grid cells, then syncs the nearest logical cell.
             var nextWorld = playerWorldPosition + worldDirection * continuousMoveSpeed * deltaTime;
             if (!CanOccupyWorldPosition(nextWorld))
             {
@@ -278,6 +286,7 @@ namespace PushBoxz.Presentation
             }
 
             var success = false;
+            // The focused push query centralizes range, facing, and target-cell validation for both F-push and step-push.
             if (!TryGetFocusedPush(forcedDirectionOffset, out var boxView, out var directionOffset, out var from, out var to))
             {
                 return false;
@@ -564,6 +573,7 @@ namespace PushBoxz.Presentation
                 return false;
             }
 
+            // Test a small neighborhood instead of the entire map; player radius only overlaps adjacent cells.
             var centerGrid = sceneBuilder.GetNearestGridPosition(worldPosition);
             for (var y = centerGrid.y - 1; y <= centerGrid.y + 1; y++)
             {
