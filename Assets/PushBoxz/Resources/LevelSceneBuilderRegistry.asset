@@ -12,6 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89da4e4125204e038569ce42442428b3, type: 3}
   m_Name: LevelSceneBuilderRegistry
   m_EditorClassIdentifier: 
+  floorPrefab: {fileID: 0}
+  wallPrefab: {fileID: 948241783951674151, guid: 2730a692dc5947842b0269f4528cfbec, type: 3}
+  goalPrefab: {fileID: 0}
+  boxPrefab: {fileID: 5988899616108461610, guid: f600490dbac28c144b9c42971f17b99c, type: 3}
+  playerPrefab: {fileID: 3758600951529465436, guid: b4238f210fea736438c7dba93d609773, type: 3}
+  moveClip: {fileID: 8300000, guid: 934c387d28b38dc4d896a0bbf41353c8, type: 3}
+  pushClip: {fileID: 8300000, guid: 73dac9b45f80595488e9a8a4b681faae, type: 3}
+  boxOnGoalClip: {fileID: 8300000, guid: 00f7de803e939c94fbf465611803f85b, type: 3}
+  levelCompleteClip: {fileID: 8300000, guid: a1c412ec3b44b9c4ebad3f3bb2a464d8, type: 3}
+  uiButtonClip: {fileID: 8300000, guid: 06a1e38c5873b9149b61f8264e8fb224, type: 3}
+  globalTmpFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   levels:
   - level: {fileID: 11400000, guid: ba987d0340eb2e04ca2bf98dec186b5a, type: 2}
     enabled: 1
@@ -19,6 +30,9 @@ MonoBehaviour:
   - level: {fileID: 11400000, guid: 799cd86013314ba45adeb142fe6dfc73, type: 2}
     enabled: 1
     unlocked: 1
+  - level: {fileID: 11400000, guid: adaad3fdff0b4004ab2907e077adb5ea, type: 2}
+    enabled: 1
+    unlocked: 0
   - level: {fileID: 11400000, guid: 5896834b0c3a9dc4c97d60751e8cdc22, type: 2}
     enabled: 1
     unlocked: 1

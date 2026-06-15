@@ -117,6 +117,24 @@ namespace PushBoxz.Presentation
             this.levelCompleteClip = levelCompleteClip;
         }
 
+        public void ApplyRegistryAssets(LevelSceneBuilderRegistry registry)
+        {
+            if (registry == null)
+            {
+                return;
+            }
+
+            floorPrefab = registry.floorPrefab != null ? registry.floorPrefab : floorPrefab;
+            wallPrefab = registry.wallPrefab != null ? registry.wallPrefab : wallPrefab;
+            goalPrefab = registry.goalPrefab != null ? registry.goalPrefab : goalPrefab;
+            boxPrefab = registry.boxPrefab != null ? registry.boxPrefab : boxPrefab;
+            playerPrefab = registry.playerPrefab != null ? registry.playerPrefab : playerPrefab;
+            moveClip = registry.moveClip != null ? registry.moveClip : moveClip;
+            pushClip = registry.pushClip != null ? registry.pushClip : pushClip;
+            boxOnGoalClip = registry.boxOnGoalClip != null ? registry.boxOnGoalClip : boxOnGoalClip;
+            levelCompleteClip = registry.levelCompleteClip != null ? registry.levelCompleteClip : levelCompleteClip;
+        }
+
         public void CopyConfigurationFrom(LevelSceneBuilder source)
         {
             if (source == null)

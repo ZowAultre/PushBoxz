@@ -56,6 +56,7 @@ namespace PushBoxz.Presentation
         private GameSession activeSession;
         private LevelEntry activeEntry;
         private LevelEntry completedNextEntry;
+        private AudioSource uiAudioSource;
         private int currentPage;
         private bool activeLevelCompletionHandled;
         private bool levelSelectDirty = true;
@@ -109,6 +110,7 @@ namespace PushBoxz.Presentation
                 registry = Resources.Load<LevelSceneBuilderRegistry>("LevelSceneBuilderRegistry");
             }
 
+            ApplyGlobalTmpFontToCanvas();
             RefreshLevelEntries();
             DestroyRuntimeHost();
             BindCoverButtons();
@@ -169,14 +171,16 @@ namespace PushBoxz.Presentation
             GUILayout.Label("PushBoxz", TitleStyle());
             GUILayout.Space(24f);
 
-            if (GUILayout.Button("开始游戏", GUILayout.Height(42f)))
+            if (GUILayout.Button("Start Game", GUILayout.Height(42f)))
             {
+                PlayUiButtonSound();
                 StartGameFromCover();
             }
 
             GUILayout.Space(8f);
-            if (GUILayout.Button("退出游戏", GUILayout.Height(42f)))
+            if (GUILayout.Button("Quit", GUILayout.Height(42f)))
             {
+                PlayUiButtonSound();
                 QuitGame();
             }
 
@@ -200,12 +204,12 @@ namespace PushBoxz.Presentation
             var rect = CenteredRect(panelWidth, panelHeight);
 
             GUILayout.BeginArea(rect, GUI.skin.box);
-            GUILayout.Label("关卡选择", TitleStyle());
+            GUILayout.Label("Level Select", TitleStyle());
             GUILayout.Space(12f);
 
             if (levelEntries.Count == 0)
             {
-                GUILayout.Label("当前没有启用的关卡。请在 Level Scene Builder Registry 中配置关卡资源并勾选启用。");
+                GUILayout.Label("No enabled levels. Configure levels in Level Registry.");
             }
             else
             {
@@ -242,8 +246,9 @@ namespace PushBoxz.Presentation
             using (new GUILayout.HorizontalScope())
             {
                 GUI.enabled = currentPage > 0;
-                if (GUILayout.Button("上一页", GUILayout.Height(34f)))
+                if (GUILayout.Button("Previous", GUILayout.Height(34f)))
                 {
+                    PlayUiButtonSound();
                     currentPage--;
                 }
 
@@ -251,16 +256,18 @@ namespace PushBoxz.Presentation
                 GUILayout.Label((currentPage + 1) + " / " + pageCount, CenterLabelStyle(), GUILayout.Width(80f));
 
                 GUI.enabled = currentPage < pageCount - 1;
-                if (GUILayout.Button("下一页", GUILayout.Height(34f)))
+                if (GUILayout.Button("Next", GUILayout.Height(34f)))
                 {
+                    PlayUiButtonSound();
                     currentPage++;
                 }
 
                 GUI.enabled = true;
             }
 
-            if (GUILayout.Button("返回封面", GUILayout.Height(32f)))
+            if (GUILayout.Button("Back", GUILayout.Height(32f)))
             {
+                PlayUiButtonSound();
                 screen = MenuScreen.Cover;
                 SyncCanvasUi();
             }
@@ -276,16 +283,17 @@ namespace PushBoxz.Presentation
             var label = GetLevelLabel(entry.level);
             if (!unlocked)
             {
-                label += "\n未解锁";
+                label += "\nLocked";
             }
             else if (cleared)
             {
-                label += "\n已通关";
+                label += "\nCleared";
             }
 
             GUI.enabled = unlocked;
             if (GUILayout.Button(label, GUILayout.Width(width), GUILayout.Height(height)))
             {
+                PlayUiButtonSound();
                 StartLevel(entry);
             }
 
@@ -298,26 +306,29 @@ namespace PushBoxz.Presentation
             var rect = new Rect(padding, padding, 360f, 150f);
             GUILayout.BeginArea(rect, GUI.skin.box);
 
-            GUILayout.Label(activeEntry != null ? GetLevelLabel(activeEntry.level) : "未选择关卡", TitleStyle(16));
-            GUILayout.Label(activeSession != null ? "步数：" + activeSession.StepCount : "步数：0");
+            GUILayout.Label(activeEntry != null ? GetLevelLabel(activeEntry.level) : "No Level Selected", TitleStyle(16));
+            GUILayout.Label(activeSession != null ? "Steps: " + activeSession.StepCount : "Steps: 0");
             GUILayout.Space(8f);
 
             using (new GUILayout.HorizontalScope())
             {
                 GUI.enabled = activeSession != null;
-                if (GUILayout.Button("回撤一步", GUILayout.Height(34f)))
+                if (GUILayout.Button("Undo", GUILayout.Height(34f)))
                 {
+                    PlayUiButtonSound();
                     UndoActiveStep();
                 }
 
-                if (GUILayout.Button("重置关卡", GUILayout.Height(34f)))
+                if (GUILayout.Button("Restart", GUILayout.Height(34f)))
                 {
+                    PlayUiButtonSound();
                     RestartActiveLevel();
                 }
 
                 GUI.enabled = true;
-                if (GUILayout.Button("返回菜单", GUILayout.Height(34f)))
+                if (GUILayout.Button("Menu", GUILayout.Height(34f)))
                 {
+                    PlayUiButtonSound();
                     ReturnToMenu();
                 }
             }
@@ -364,6 +375,7 @@ namespace PushBoxz.Presentation
             runtimeHost = new GameObject(RuntimeHostName);
             var builder = runtimeHost.AddComponent<LevelSceneBuilder>();
             builder.CopyConfigurationFrom(GetSceneBuilderTemplate());
+            builder.ApplyRegistryAssets(registry);
             activeSession = runtimeHost.AddComponent<GameSession>();
             runtimeHost.AddComponent<PlayerInputController>();
 
@@ -439,14 +451,14 @@ namespace PushBoxz.Presentation
         {
             if (startButton != null)
             {
-                startButton.onClick.RemoveListener(StartGameFromCover);
-                startButton.onClick.AddListener(StartGameFromCover);
+                startButton.onClick.RemoveListener(OnStartButtonClicked);
+                startButton.onClick.AddListener(OnStartButtonClicked);
             }
 
             if (quitButton != null)
             {
-                quitButton.onClick.RemoveListener(QuitGame);
-                quitButton.onClick.AddListener(QuitGame);
+                quitButton.onClick.RemoveListener(OnQuitButtonClicked);
+                quitButton.onClick.AddListener(OnQuitButtonClicked);
             }
         }
 
@@ -454,12 +466,12 @@ namespace PushBoxz.Presentation
         {
             if (startButton != null)
             {
-                startButton.onClick.RemoveListener(StartGameFromCover);
+                startButton.onClick.RemoveListener(OnStartButtonClicked);
             }
 
             if (quitButton != null)
             {
-                quitButton.onClick.RemoveListener(QuitGame);
+                quitButton.onClick.RemoveListener(OnQuitButtonClicked);
             }
         }
 
@@ -467,20 +479,20 @@ namespace PushBoxz.Presentation
         {
             if (previousPageButton != null)
             {
-                previousPageButton.onClick.RemoveListener(GoToPreviousPage);
-                previousPageButton.onClick.AddListener(GoToPreviousPage);
+                previousPageButton.onClick.RemoveListener(OnPreviousPageButtonClicked);
+                previousPageButton.onClick.AddListener(OnPreviousPageButtonClicked);
             }
 
             if (nextPageButton != null)
             {
-                nextPageButton.onClick.RemoveListener(GoToNextPage);
-                nextPageButton.onClick.AddListener(GoToNextPage);
+                nextPageButton.onClick.RemoveListener(OnNextPageButtonClicked);
+                nextPageButton.onClick.AddListener(OnNextPageButtonClicked);
             }
 
             if (backToCoverButton != null)
             {
-                backToCoverButton.onClick.RemoveListener(ReturnToCover);
-                backToCoverButton.onClick.AddListener(ReturnToCover);
+                backToCoverButton.onClick.RemoveListener(OnBackToCoverButtonClicked);
+                backToCoverButton.onClick.AddListener(OnBackToCoverButtonClicked);
             }
         }
 
@@ -488,17 +500,17 @@ namespace PushBoxz.Presentation
         {
             if (previousPageButton != null)
             {
-                previousPageButton.onClick.RemoveListener(GoToPreviousPage);
+                previousPageButton.onClick.RemoveListener(OnPreviousPageButtonClicked);
             }
 
             if (nextPageButton != null)
             {
-                nextPageButton.onClick.RemoveListener(GoToNextPage);
+                nextPageButton.onClick.RemoveListener(OnNextPageButtonClicked);
             }
 
             if (backToCoverButton != null)
             {
-                backToCoverButton.onClick.RemoveListener(ReturnToCover);
+                backToCoverButton.onClick.RemoveListener(OnBackToCoverButtonClicked);
             }
         }
 
@@ -506,20 +518,20 @@ namespace PushBoxz.Presentation
         {
             if (undoButton != null)
             {
-                undoButton.onClick.RemoveListener(UndoActiveStep);
-                undoButton.onClick.AddListener(UndoActiveStep);
+                undoButton.onClick.RemoveListener(OnUndoButtonClicked);
+                undoButton.onClick.AddListener(OnUndoButtonClicked);
             }
 
             if (restartButton != null)
             {
-                restartButton.onClick.RemoveListener(RestartActiveLevel);
-                restartButton.onClick.AddListener(RestartActiveLevel);
+                restartButton.onClick.RemoveListener(OnRestartButtonClicked);
+                restartButton.onClick.AddListener(OnRestartButtonClicked);
             }
 
             if (returnToMenuButton != null)
             {
-                returnToMenuButton.onClick.RemoveListener(ReturnToMenu);
-                returnToMenuButton.onClick.AddListener(ReturnToMenu);
+                returnToMenuButton.onClick.RemoveListener(OnReturnToMenuButtonClicked);
+                returnToMenuButton.onClick.AddListener(OnReturnToMenuButtonClicked);
             }
         }
 
@@ -527,17 +539,17 @@ namespace PushBoxz.Presentation
         {
             if (undoButton != null)
             {
-                undoButton.onClick.RemoveListener(UndoActiveStep);
+                undoButton.onClick.RemoveListener(OnUndoButtonClicked);
             }
 
             if (restartButton != null)
             {
-                restartButton.onClick.RemoveListener(RestartActiveLevel);
+                restartButton.onClick.RemoveListener(OnRestartButtonClicked);
             }
 
             if (returnToMenuButton != null)
             {
-                returnToMenuButton.onClick.RemoveListener(ReturnToMenu);
+                returnToMenuButton.onClick.RemoveListener(OnReturnToMenuButtonClicked);
             }
         }
 
@@ -545,14 +557,14 @@ namespace PushBoxz.Presentation
         {
             if (continueButton != null)
             {
-                continueButton.onClick.RemoveListener(ReturnToMenu);
-                continueButton.onClick.AddListener(ReturnToMenu);
+                continueButton.onClick.RemoveListener(OnContinueButtonClicked);
+                continueButton.onClick.AddListener(OnContinueButtonClicked);
             }
 
             if (nextLevelButton != null)
             {
-                nextLevelButton.onClick.RemoveListener(StartNextLevel);
-                nextLevelButton.onClick.AddListener(StartNextLevel);
+                nextLevelButton.onClick.RemoveListener(OnNextLevelButtonClicked);
+                nextLevelButton.onClick.AddListener(OnNextLevelButtonClicked);
             }
         }
 
@@ -560,13 +572,95 @@ namespace PushBoxz.Presentation
         {
             if (continueButton != null)
             {
-                continueButton.onClick.RemoveListener(ReturnToMenu);
+                continueButton.onClick.RemoveListener(OnContinueButtonClicked);
             }
 
             if (nextLevelButton != null)
             {
-                nextLevelButton.onClick.RemoveListener(StartNextLevel);
+                nextLevelButton.onClick.RemoveListener(OnNextLevelButtonClicked);
             }
+        }
+
+        private void OnStartButtonClicked()
+        {
+            PlayUiButtonSound();
+            StartGameFromCover();
+        }
+
+        private void OnQuitButtonClicked()
+        {
+            PlayUiButtonSound();
+            QuitGame();
+        }
+
+        private void OnPreviousPageButtonClicked()
+        {
+            PlayUiButtonSound();
+            GoToPreviousPage();
+        }
+
+        private void OnNextPageButtonClicked()
+        {
+            PlayUiButtonSound();
+            GoToNextPage();
+        }
+
+        private void OnBackToCoverButtonClicked()
+        {
+            PlayUiButtonSound();
+            ReturnToCover();
+        }
+
+        private void OnUndoButtonClicked()
+        {
+            PlayUiButtonSound();
+            UndoActiveStep();
+        }
+
+        private void OnRestartButtonClicked()
+        {
+            PlayUiButtonSound();
+            RestartActiveLevel();
+        }
+
+        private void OnReturnToMenuButtonClicked()
+        {
+            PlayUiButtonSound();
+            ReturnToMenu();
+        }
+
+        private void OnContinueButtonClicked()
+        {
+            PlayUiButtonSound();
+            ReturnToMenu();
+        }
+
+        private void OnNextLevelButtonClicked()
+        {
+            PlayUiButtonSound();
+            StartNextLevel();
+        }
+
+        private void PlayUiButtonSound()
+        {
+            var clip = registry != null ? registry.uiButtonClip : null;
+            if (clip == null)
+            {
+                return;
+            }
+
+            if (uiAudioSource == null)
+            {
+                uiAudioSource = GetComponent<AudioSource>();
+                if (uiAudioSource == null)
+                {
+                    uiAudioSource = gameObject.AddComponent<AudioSource>();
+                }
+
+                uiAudioSource.playOnAwake = false;
+            }
+
+            uiAudioSource.PlayOneShot(clip);
         }
 
         private void UndoActiveStep()
@@ -692,8 +786,8 @@ namespace PushBoxz.Presentation
 
         private void SyncGameplayHud()
         {
-            var levelLabel = activeEntry != null ? GetLevelLabel(activeEntry.level) : "未选择关卡";
-            var stepLabel = activeSession != null ? "步数：" + activeSession.StepCount : "步数：0";
+            var levelLabel = activeEntry != null ? GetLevelLabel(activeEntry.level) : "No Level Selected";
+            var stepLabel = activeSession != null ? "Steps: " + activeSession.StepCount : "Steps: 0";
 
             SetLabelText(currentLevelText, currentLevelTmpText, levelLabel);
             SetLabelText(stepCountText, stepCountTmpText, stepLabel);
@@ -742,6 +836,7 @@ namespace PushBoxz.Presentation
             var button = Instantiate(levelButtonPrefab, levelButtonParent);
             button.gameObject.SetActive(true);
             spawnedLevelButtons.Add(button);
+            ApplyGlobalTmpFontToRoot(button.gameObject);
             ApplyFallbackLevelButtonLayout(button, pageIndex);
 
             var unlocked = IsLevelUnlocked(levelIndex);
@@ -750,7 +845,11 @@ namespace PushBoxz.Presentation
             SetButtonLabel(button, BuildLevelButtonLabel(entry.level, unlocked, cleared));
 
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => StartLevel(entry));
+            button.onClick.AddListener(() =>
+            {
+                PlayUiButtonSound();
+                StartLevel(entry);
+            });
         }
 
         private void ApplyFallbackLevelButtonLayout(Button button, int pageIndex)
@@ -807,6 +906,7 @@ namespace PushBoxz.Presentation
 
             if (pageTmpText != null)
             {
+                ApplyGlobalTmpFont(pageTmpText);
                 pageTmpText.text = pageLabel;
             }
         }
@@ -855,7 +955,7 @@ namespace PushBoxz.Presentation
             return Mathf.Max(1, Mathf.CeilToInt(levelEntries.Count / (float)pageSize));
         }
 
-        private static void SetButtonLabel(Button button, string label)
+        private void SetButtonLabel(Button button, string label)
         {
             var text = button.GetComponentInChildren<Text>(true);
             if (text != null)
@@ -866,6 +966,7 @@ namespace PushBoxz.Presentation
             var tmpText = button.GetComponentInChildren<TMP_Text>(true);
             if (tmpText != null)
             {
+                ApplyGlobalTmpFont(tmpText);
                 tmpText.text = label;
             }
         }
@@ -875,13 +976,13 @@ namespace PushBoxz.Presentation
             var label = GetLevelLabel(level);
             if (!unlocked)
             {
-                return label + "\n未解锁";
+                return label + "\nLocked";
             }
 
-            return cleared ? label + "\n已通关" : label;
+            return cleared ? label + "\nCleared" : label;
         }
 
-        private static void SetLabelText(Text text, TMP_Text tmpText, string label)
+        private void SetLabelText(Text text, TMP_Text tmpText, string label)
         {
             if (text != null)
             {
@@ -890,8 +991,77 @@ namespace PushBoxz.Presentation
 
             if (tmpText != null)
             {
+                ApplyGlobalTmpFont(tmpText);
                 tmpText.text = label;
             }
+        }
+
+        private void ApplyGlobalTmpFontToCanvas()
+        {
+            var font = GetGlobalTmpFont();
+            if (font == null)
+            {
+                return;
+            }
+
+            EnsureTmpFallback(font);
+            ApplyGlobalTmpFontToRoot(coverRoot);
+            ApplyGlobalTmpFontToRoot(levelSelectRoot);
+            ApplyGlobalTmpFontToRoot(gameplayHudRoot);
+            ApplyGlobalTmpFontToRoot(levelCompleteRoot);
+            ApplyGlobalTmpFont(pageTmpText);
+            ApplyGlobalTmpFont(currentLevelTmpText);
+            ApplyGlobalTmpFont(stepCountTmpText);
+        }
+
+        private void ApplyGlobalTmpFontToRoot(GameObject root)
+        {
+            var font = GetGlobalTmpFont();
+            if (root == null || font == null)
+            {
+                return;
+            }
+
+            var texts = root.GetComponentsInChildren<TMP_Text>(true);
+            for (var i = 0; i < texts.Length; i++)
+            {
+                ApplyGlobalTmpFont(texts[i], font);
+            }
+        }
+
+        private void ApplyGlobalTmpFont(TMP_Text text)
+        {
+            var font = GetGlobalTmpFont();
+            if (font != null)
+            {
+                ApplyGlobalTmpFont(text, font);
+            }
+        }
+
+        private static void ApplyGlobalTmpFont(TMP_Text text, TMP_FontAsset font)
+        {
+            if (text == null || font == null || text.font == font)
+            {
+                return;
+            }
+
+            text.font = font;
+            text.fontSharedMaterial = font.material;
+        }
+
+        private TMP_FontAsset GetGlobalTmpFont()
+        {
+            return registry != null ? registry.globalTmpFont : null;
+        }
+
+        private static void EnsureTmpFallback(TMP_FontAsset font)
+        {
+            if (font == null || TMP_Settings.fallbackFontAssets.Contains(font))
+            {
+                return;
+            }
+
+            TMP_Settings.fallbackFontAssets.Add(font);
         }
 
         private void DestroyRuntimeHost()
@@ -1051,7 +1221,7 @@ namespace PushBoxz.Presentation
 
         private static string GetLevelLabel(LevelDataAsset level)
         {
-            return level == null || string.IsNullOrWhiteSpace(level.levelId) ? "未命名关卡" : level.levelId;
+            return level == null || string.IsNullOrWhiteSpace(level.levelId) ? "Untitled Level" : level.levelId;
         }
 
         private static Rect CenteredRect(float width, float height)

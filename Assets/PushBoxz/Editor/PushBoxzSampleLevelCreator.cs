@@ -9,7 +9,6 @@ namespace PushBoxz.Editor
     {
         private const string LevelsFolder = "Assets/PushBoxz/Levels";
 
-        [MenuItem("Tools/PushBoxz/Create Sample Push Level")]
         public static void CreateSamplePushLevel()
         {
             EnsureLevelsFolder();

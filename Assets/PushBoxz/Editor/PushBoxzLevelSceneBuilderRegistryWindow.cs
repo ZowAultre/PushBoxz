@@ -12,7 +12,7 @@ namespace PushBoxz.Editor
         private SerializedProperty levelsProperty;
         private Vector2 scrollPosition;
 
-        [MenuItem("Tools/PushBoxz/Level Scene Builder Registry")]
+        [MenuItem("Tools/PushBoxz/Level Registry")]
         public static void ShowWindow()
         {
             var window = GetWindow<PushBoxzLevelSceneBuilderRegistryWindow>("关卡列表");

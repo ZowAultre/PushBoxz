@@ -24,7 +24,6 @@ namespace PushBoxz.Editor
             EditorUtility.DisplayDialog("PushBoxz", "已重建关卡记录：\n" + RegistryPath, "OK");
         }
 
-        [MenuItem("Tools/PushBoxz/Create Level Menu In Scene")]
         public static void CreateLevelMenuInScene()
         {
             var registry = RebuildRegistryAsset();
