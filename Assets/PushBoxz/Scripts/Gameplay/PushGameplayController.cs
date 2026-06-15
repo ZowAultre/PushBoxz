@@ -270,6 +270,28 @@ namespace PushBoxz.Gameplay
             }
         }
 
+        public void RestoreState(Vector2Int playerPosition, Direction facing, IReadOnlyList<Vector2Int> boxPositions)
+        {
+            EnsureLoaded();
+
+            player.Position = playerPosition;
+            player.Facing = facing;
+            player.ActionState = PlayerActionState.Idle;
+            boxesByPosition.Clear();
+            movingBoxCount = 0;
+
+            for (var i = 0; i < boxes.Count; i++)
+            {
+                var position = i < boxPositions.Count ? boxPositions[i] : boxes[i].StartPosition;
+                boxes[i].Position = position;
+                boxes[i].IsMoving = false;
+                if (!boxesByPosition.ContainsKey(position))
+                {
+                    boxesByPosition.Add(position, boxes[i]);
+                }
+            }
+        }
+
         public bool TryGetBoxAt(Vector2Int position, out BoxRuntimeState box)
         {
             EnsureLoaded();

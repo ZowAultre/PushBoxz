@@ -9,6 +9,9 @@ namespace PushBoxz.Presentation
         [Header("Mapping")]
         [SerializeField] private GridWorldMapper mapper = new GridWorldMapper();
 
+        [Header("Level State")]
+        [SerializeField] private LevelDataAsset levelData;
+
         [Header("Optional Prefabs")]
         [SerializeField] private GameObject floorPrefab;
         [SerializeField] private GameObject wallPrefab;
@@ -23,6 +26,12 @@ namespace PushBoxz.Presentation
         [SerializeField] private Material boxMaterial;
         [SerializeField] private Material playerMaterial;
 
+        [Header("Audio")]
+        [SerializeField] private AudioClip moveClip;
+        [SerializeField] private AudioClip pushClip;
+        [SerializeField] private AudioClip boxOnGoalClip;
+        [SerializeField] private AudioClip levelCompleteClip;
+
         [Header("Camera")]
         [SerializeField] private bool frameMainCamera = true;
 
@@ -36,6 +45,12 @@ namespace PushBoxz.Presentation
             get { return mapper; }
         }
 
+        public LevelDataAsset LevelData
+        {
+            get { return levelData; }
+            set { levelData = value; }
+        }
+
         public IReadOnlyList<BoxView> BoxViews
         {
             get { return boxViews; }
@@ -44,6 +59,90 @@ namespace PushBoxz.Presentation
         public Transform PlayerRoot
         {
             get { return playerRoot; }
+        }
+
+        public AudioClip MoveClip
+        {
+            get { return moveClip; }
+        }
+
+        public AudioClip PushClip
+        {
+            get { return pushClip; }
+        }
+
+        public AudioClip BoxOnGoalClip
+        {
+            get { return boxOnGoalClip; }
+        }
+
+        public AudioClip LevelCompleteClip
+        {
+            get { return levelCompleteClip; }
+        }
+
+        public void ConfigureOptionalAssets(
+            GameObject floorPrefab,
+            GameObject wallPrefab,
+            GameObject goalPrefab,
+            GameObject boxPrefab,
+            GameObject playerPrefab,
+            Material floorMaterial,
+            Material wallMaterial,
+            Material goalMaterial,
+            Material boxMaterial,
+            Material playerMaterial)
+        {
+            this.floorPrefab = floorPrefab;
+            this.wallPrefab = wallPrefab;
+            this.goalPrefab = goalPrefab;
+            this.boxPrefab = boxPrefab;
+            this.playerPrefab = playerPrefab;
+            this.floorMaterial = floorMaterial;
+            this.wallMaterial = wallMaterial;
+            this.goalMaterial = goalMaterial;
+            this.boxMaterial = boxMaterial;
+            this.playerMaterial = playerMaterial;
+        }
+
+        public void ConfigureAudio(
+            AudioClip moveClip,
+            AudioClip pushClip,
+            AudioClip boxOnGoalClip,
+            AudioClip levelCompleteClip)
+        {
+            this.moveClip = moveClip;
+            this.pushClip = pushClip;
+            this.boxOnGoalClip = boxOnGoalClip;
+            this.levelCompleteClip = levelCompleteClip;
+        }
+
+        public void CopyConfigurationFrom(LevelSceneBuilder source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            levelData = source.levelData;
+            mapper.CellSize = source.mapper.CellSize;
+            mapper.Origin = source.mapper.Origin;
+            ConfigureOptionalAssets(
+                source.floorPrefab,
+                source.wallPrefab,
+                source.goalPrefab,
+                source.boxPrefab,
+                source.playerPrefab,
+                source.floorMaterial,
+                source.wallMaterial,
+                source.goalMaterial,
+                source.boxMaterial,
+                source.playerMaterial);
+            ConfigureAudio(
+                source.moveClip,
+                source.pushClip,
+                source.boxOnGoalClip,
+                source.levelCompleteClip);
         }
 
         public Vector3 GetGridWorldPosition(Vector2Int gridPosition)
@@ -72,6 +171,7 @@ namespace PushBoxz.Presentation
 
         public void Build(LevelDataAsset level)
         {
+            levelData = level;
             Clear();
 
             if (level == null)

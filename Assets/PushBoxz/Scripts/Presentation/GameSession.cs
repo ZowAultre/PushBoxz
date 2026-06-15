@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using PushBoxz.Core;
 using PushBoxz.Data;
 using PushBoxz.Gameplay;
@@ -21,6 +22,7 @@ namespace PushBoxz.Presentation
         [SerializeField] private float maxPushDistance = 1.6f;
 
         private readonly PushGameplayController gameplay = new PushGameplayController();
+        private readonly List<SessionSnapshot> undoHistory = new List<SessionSnapshot>();
         private Vector2Int playerGridPosition;
         private Vector3 playerWorldPosition;
         private Direction facingDirection = Direction.Up;
@@ -28,6 +30,18 @@ namespace PushBoxz.Presentation
         private BoxView focusedBox;
         private bool pushBusy;
         private float nextPushAllowedTime;
+        private AudioSource audioSource;
+
+        private struct SessionSnapshot
+        {
+            public Vector2Int playerGridPosition;
+            public Vector3 playerWorldPosition;
+            public Direction facingDirection;
+            public Vector3 facingWorldDirection;
+            public int stepCount;
+            public bool isCompleted;
+            public List<Vector2Int> boxPositions;
+        }
 
         public LevelDataAsset LevelData
         {
@@ -86,6 +100,7 @@ namespace PushBoxz.Presentation
             nextPushAllowedTime = 0f;
             StepCount = 0;
             IsCompleted = false;
+            undoHistory.Clear();
 
             EnsureSceneBuilder();
             if (sceneBuilder != null)
@@ -119,6 +134,7 @@ namespace PushBoxz.Presentation
             facingDirection = direction;
             facingWorldDirection = WorldDirectionFromOffset(DirectionUtility.ToOffset(direction));
             var moveResult = false;
+            var snapshot = CaptureSnapshot();
             if (gameplay.HasLevel)
             {
                 moveResult = gameplay.Move(direction);
@@ -144,9 +160,14 @@ namespace PushBoxz.Presentation
             playerGridPosition = gameplay.HasLevel ? gameplay.Player.Position : playerGridPosition + DirectionUtility.ToOffset(direction);
             facingDirection = gameplay.HasLevel ? gameplay.Player.Facing : direction;
             facingWorldDirection = WorldDirectionFromOffset(DirectionUtility.ToOffset(facingDirection));
+            undoHistory.Add(snapshot);
             StepCount++;
             SyncPlayerTransform();
             RefreshFocusedBox();
+            if (movementMode == PlayerMovementMode.GridStep)
+            {
+                PlayOneShot(sceneBuilder != null ? sceneBuilder.MoveClip : null);
+            }
 
             if (gameplay.HasLevel)
             {
@@ -263,6 +284,7 @@ namespace PushBoxz.Presentation
             }
 
             PushResult pushResult = default;
+            var snapshot = CaptureSnapshot();
 
             if (gameplay.HasLevel)
             {
@@ -300,18 +322,38 @@ namespace PushBoxz.Presentation
             }
 
             StepCount++;
+            undoHistory.Add(snapshot);
             playerGridPosition = gameplay.HasLevel ? gameplay.Player.Position : movePlayerIntoBoxCell ? from : playerGridPosition;
+            var wasBoxOnGoal = levelData != null && levelData.HasGoal(from.x, from.y);
             if (movementMode == PlayerMovementMode.GridStep)
             {
                 SyncPlayerTransform();
             }
 
-            StartCoroutine(AnimatePush(boxView, to, gameplay.HasLevel ? pushResult.box : null));
+            PlayOneShot(sceneBuilder != null ? sceneBuilder.PushClip : null);
+            StartCoroutine(AnimatePush(boxView, to, gameplay.HasLevel ? pushResult.box : null, wasBoxOnGoal));
             RefreshFocusedBox();
             return true;
         }
 
-        private IEnumerator AnimatePush(BoxView boxView, Vector2Int to, BoxRuntimeState runtimeBox)
+        public bool UndoLastStep()
+        {
+            if (pushBusy || undoHistory.Count == 0)
+            {
+                return false;
+            }
+
+            StopAllCoroutines();
+            pushBusy = false;
+            nextPushAllowedTime = 0f;
+
+            var snapshot = undoHistory[undoHistory.Count - 1];
+            undoHistory.RemoveAt(undoHistory.Count - 1);
+            RestoreSnapshot(snapshot);
+            return true;
+        }
+
+        private IEnumerator AnimatePush(BoxView boxView, Vector2Int to, BoxRuntimeState runtimeBox, bool wasBoxOnGoal)
         {
             pushBusy = true;
             nextPushAllowedTime = Time.time + PushCooldown;
@@ -339,8 +381,19 @@ namespace PushBoxz.Presentation
             }
 
             pushBusy = false;
+            var wasCompleted = IsCompleted;
             UpdateCompletionState();
             RefreshGoalVisuals();
+            if (!wasBoxOnGoal && levelData != null && levelData.HasGoal(to.x, to.y))
+            {
+                PlayOneShot(sceneBuilder != null ? sceneBuilder.BoxOnGoalClip : null);
+            }
+
+            if (!wasCompleted && IsCompleted)
+            {
+                PlayOneShot(sceneBuilder != null ? sceneBuilder.LevelCompleteClip : null);
+            }
+
             RefreshFocusedBox();
         }
 
@@ -356,6 +409,94 @@ namespace PushBoxz.Presentation
             {
                 sceneBuilder = gameObject.AddComponent<LevelSceneBuilder>();
             }
+        }
+
+        private void PlayOneShot(AudioClip clip)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                    audioSource.playOnAwake = false;
+                }
+            }
+
+            audioSource.PlayOneShot(clip);
+        }
+
+        private SessionSnapshot CaptureSnapshot()
+        {
+            var snapshot = new SessionSnapshot
+            {
+                playerGridPosition = playerGridPosition,
+                playerWorldPosition = playerWorldPosition,
+                facingDirection = facingDirection,
+                facingWorldDirection = facingWorldDirection,
+                stepCount = StepCount,
+                isCompleted = IsCompleted,
+                boxPositions = new List<Vector2Int>()
+            };
+
+            if (gameplay.HasLevel)
+            {
+                for (var i = 0; i < gameplay.Boxes.Count; i++)
+                {
+                    snapshot.boxPositions.Add(gameplay.Boxes[i].Position);
+                }
+            }
+            else if (sceneBuilder != null)
+            {
+                for (var i = 0; i < sceneBuilder.BoxViews.Count; i++)
+                {
+                    var box = sceneBuilder.BoxViews[i];
+                    if (box != null)
+                    {
+                        snapshot.boxPositions.Add(box.GridPosition);
+                    }
+                }
+            }
+
+            return snapshot;
+        }
+
+        private void RestoreSnapshot(SessionSnapshot snapshot)
+        {
+            StepCount = snapshot.stepCount;
+            IsCompleted = snapshot.isCompleted;
+            playerGridPosition = snapshot.playerGridPosition;
+            playerWorldPosition = snapshot.playerWorldPosition;
+            facingDirection = snapshot.facingDirection;
+            facingWorldDirection = snapshot.facingWorldDirection;
+
+            if (gameplay.HasLevel)
+            {
+                gameplay.RestoreState(playerGridPosition, facingDirection, snapshot.boxPositions);
+            }
+
+            if (sceneBuilder == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < sceneBuilder.BoxViews.Count && i < snapshot.boxPositions.Count; i++)
+            {
+                var box = sceneBuilder.BoxViews[i];
+                if (box != null)
+                {
+                    box.SetGridPosition(snapshot.boxPositions[i], true);
+                }
+            }
+
+            SyncPlayerTransform();
+            RefreshGoalVisuals();
+            RefreshFocusedBox();
         }
 
         private void SyncPlayerTransform()
