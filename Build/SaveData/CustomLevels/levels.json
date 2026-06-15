@@ -1,0 +1,1287 @@
+{
+    "levels": [
+        {
+            "levelId": "My2",
+            "width": 5,
+            "height": 5,
+            "playerX": 1,
+            "playerY": 3,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": true
+                },
+                {
+                    "x": 3,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": true
+                },
+                {
+                    "x": 4,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                }
+            ],
+            "boxStarts": [
+                {
+                    "x": 1,
+                    "y": 2
+                },
+                {
+                    "x": 3,
+                    "y": 3
+                }
+            ]
+        },
+        {
+            "levelId": "My16",
+            "width": 12,
+            "height": 12,
+            "playerX": 5,
+            "playerY": 4,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 0,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 5,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 6,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 6,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 6,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 7,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 7,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 7,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 7,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 8,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 8,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 8,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 8,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 8,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 9,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 9,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": true
+                },
+                {
+                    "x": 8,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 9,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 10,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 10,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 10,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 10,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 10,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 10,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 11,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 11,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 11,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 11,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 11,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 6,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 7,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 8,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 9,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 10,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 11,
+                    "y": 11,
+                    "baseType": 1,
+                    "hasGoal": false
+                }
+            ],
+            "boxStarts": [
+                {
+                    "x": 5,
+                    "y": 6
+                }
+            ]
+        },
+        {
+            "levelId": "My6",
+            "width": 6,
+            "height": 6,
+            "playerX": 4,
+            "playerY": 4,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 0,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 1,
+                    "baseType": 1,
+                    "hasGoal": true
+                },
+                {
+                    "x": 4,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 1,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": true
+                },
+                {
+                    "x": 2,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 2,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 2,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 3,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 3,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 4,
+                    "baseType": 1,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 4,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 0,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 1,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 2,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 3,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 4,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                },
+                {
+                    "x": 5,
+                    "y": 5,
+                    "baseType": 2,
+                    "hasGoal": false
+                }
+            ],
+            "boxStarts": [
+                {
+                    "x": 1,
+                    "y": 3
+                },
+                {
+                    "x": 3,
+                    "y": 2
+                }
+            ]
+        }
+    ]
+}
