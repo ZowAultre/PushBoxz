@@ -35,10 +35,17 @@ namespace PushBoxz.Presentation
         [Header("Camera")]
         [SerializeField] private bool frameMainCamera = true;
 
+        [Header("UI Framing Offset")]
+        [SerializeField] private bool applyUiSafeAreaOffset = true;
+        [SerializeField] private Vector2 uiOffsetAtSmallLevel = new Vector2(1.4f, 0.4f);
+        [SerializeField] private Vector2 uiOffsetAtLargeLevel = new Vector2(3f, 2f);
+        [SerializeField] private Vector2Int uiOffsetLevelSizeRange = new Vector2Int(5, 16);
+
         private readonly List<BoxView> boxViews = new List<BoxView>();
         private Transform terrainRoot;
         private Transform objectRoot;
         private Transform playerRoot;
+        private Vector3 lastAppliedUiOffset;
 
         public GridWorldMapper Mapper
         {
@@ -145,6 +152,11 @@ namespace PushBoxz.Presentation
             levelData = source.levelData;
             mapper.CellSize = source.mapper.CellSize;
             mapper.Origin = source.mapper.Origin;
+            lastAppliedUiOffset = Vector3.zero;
+            applyUiSafeAreaOffset = source.applyUiSafeAreaOffset;
+            uiOffsetAtSmallLevel = source.uiOffsetAtSmallLevel;
+            uiOffsetAtLargeLevel = source.uiOffsetAtLargeLevel;
+            uiOffsetLevelSizeRange = source.uiOffsetLevelSizeRange;
             ConfigureOptionalAssets(
                 source.floorPrefab,
                 source.wallPrefab,
@@ -191,12 +203,16 @@ namespace PushBoxz.Presentation
         {
             levelData = level;
             Clear();
+            RemoveLastAppliedUiOffset();
 
             if (level == null)
             {
                 Debug.LogWarning("LevelSceneBuilder.Build called without a LevelDataAsset.", this);
                 return;
             }
+
+            var cameraFrameOrigin = mapper.Origin;
+            ApplyUiOffsetForLevel(level);
 
             terrainRoot = CreateRoot("Terrain");
             objectRoot = CreateRoot("Objects");
@@ -235,7 +251,7 @@ namespace PushBoxz.Presentation
 
             if (frameMainCamera)
             {
-                FrameMainCamera(level);
+                FrameMainCamera(level, cameraFrameOrigin);
             }
         }
 
@@ -307,35 +323,68 @@ namespace PushBoxz.Presentation
             }
         }
 
+        private void RemoveLastAppliedUiOffset()
+        {
+            if (lastAppliedUiOffset == Vector3.zero)
+            {
+                return;
+            }
+
+            mapper.Origin -= lastAppliedUiOffset;
+            lastAppliedUiOffset = Vector3.zero;
+        }
+
+        private void ApplyUiOffsetForLevel(LevelDataAsset level)
+        {
+            if (!applyUiSafeAreaOffset || level == null)
+            {
+                return;
+            }
+
+            var offset = CalculateUiOffset(level);
+            mapper.Origin += offset;
+            lastAppliedUiOffset = offset;
+        }
+
+        private Vector3 CalculateUiOffset(LevelDataAsset level)
+        {
+            var minSize = Mathf.Min(uiOffsetLevelSizeRange.x, uiOffsetLevelSizeRange.y);
+            var maxSize = Mathf.Max(uiOffsetLevelSizeRange.x, uiOffsetLevelSizeRange.y);
+            var dimension = Mathf.Max(level.width, level.height);
+            var t = Mathf.InverseLerp(minSize, maxSize, dimension);
+            var offset = Vector2.Lerp(uiOffsetAtSmallLevel, uiOffsetAtLargeLevel, t) * mapper.CellSize;
+            return new Vector3(offset.x, 0f, offset.y);
+        }
+
         private void CreateFloor(Vector2Int gridPosition)
         {
-            var view = CreateInstance(floorPrefab, PrimitiveType.Cube, "Floor", terrainRoot);
+            var view = CreateInstance(floorPrefab, PrimitiveType.Cube, "Floor", terrainRoot, out var usesPrefab);
             view.transform.position = mapper.GridToWorld(gridPosition) + Vector3.down * 0.05f;
             view.transform.localScale = new Vector3(mapper.CellSize, 0.1f, mapper.CellSize);
-            ApplyMaterial(view, floorMaterial, new Color(0.38f, 0.44f, 0.42f));
+            ApplyFallbackMaterial(view, usesPrefab, floorMaterial, new Color(0.38f, 0.44f, 0.42f));
         }
 
         private void CreateWall(Vector2Int gridPosition)
         {
-            var view = CreateInstance(wallPrefab, PrimitiveType.Cube, "Wall", terrainRoot);
+            var view = CreateInstance(wallPrefab, PrimitiveType.Cube, "Wall", terrainRoot, out var usesPrefab);
             view.transform.position = mapper.GridToWorld(gridPosition) + Vector3.up * 0.5f;
             view.transform.localScale = Vector3.one * mapper.CellSize;
-            ApplyMaterial(view, wallMaterial, new Color(0.18f, 0.2f, 0.23f));
+            ApplyFallbackMaterial(view, usesPrefab, wallMaterial, new Color(0.18f, 0.2f, 0.23f));
         }
 
         private void CreateGoal(Vector2Int gridPosition)
         {
-            var view = CreateInstance(goalPrefab, PrimitiveType.Cylinder, "Goal", terrainRoot);
+            var view = CreateInstance(goalPrefab, PrimitiveType.Cylinder, "Goal", terrainRoot, out var usesPrefab);
             view.transform.position = mapper.GridToWorld(gridPosition) + Vector3.up * 0.012f;
-            view.transform.localScale = new Vector3(mapper.CellSize * 0.55f, 0.025f, mapper.CellSize * 0.55f);
-            ApplyMaterial(view, goalMaterial, new Color(0.15f, 0.82f, 0.46f));
+            view.transform.localScale = Vector3.one;
+            ApplyFallbackMaterial(view, usesPrefab, goalMaterial, new Color(0.15f, 0.82f, 0.46f));
         }
 
         private void CreateBox(Vector2Int gridPosition)
         {
-            var view = CreateInstance(boxPrefab, PrimitiveType.Cube, "Box", objectRoot);
+            var view = CreateInstance(boxPrefab, PrimitiveType.Cube, "Box", objectRoot, out var usesPrefab);
             view.transform.localScale = Vector3.one * (mapper.CellSize * 0.78f);
-            ApplyMaterial(view, boxMaterial, new Color(0.85f, 0.57f, 0.2f));
+            ApplyFallbackMaterial(view, usesPrefab, boxMaterial, new Color(0.85f, 0.57f, 0.2f));
 
             var boxView = view.GetComponent<BoxView>();
             if (boxView == null)
@@ -349,32 +398,39 @@ namespace PushBoxz.Presentation
 
         private void CreatePlayer(Vector2Int gridPosition)
         {
-            var view = CreateInstance(playerPrefab, PrimitiveType.Capsule, "Player", objectRoot);
+            var view = CreateInstance(playerPrefab, PrimitiveType.Capsule, "Player", objectRoot, out var usesPrefab);
             view.transform.localScale = new Vector3(mapper.CellSize * 0.55f, mapper.CellSize * 0.55f, mapper.CellSize * 0.55f);
-            ApplyMaterial(view, playerMaterial, new Color(0.24f, 0.48f, 0.92f));
+            ApplyFallbackMaterial(view, usesPrefab, playerMaterial, new Color(0.24f, 0.48f, 0.92f));
             playerRoot = view.transform;
             SetPlayerGridPosition(gridPosition);
         }
 
-        private GameObject CreateInstance(GameObject prefab, PrimitiveType fallbackPrimitive, string objectName, Transform parent)
+        private GameObject CreateInstance(GameObject prefab, PrimitiveType fallbackPrimitive, string objectName, Transform parent, out bool usesPrefab)
         {
             GameObject instance;
             if (prefab != null)
             {
                 instance = Instantiate(prefab, parent);
+                usesPrefab = true;
             }
             else
             {
                 instance = GameObject.CreatePrimitive(fallbackPrimitive);
                 instance.transform.SetParent(parent, false);
+                usesPrefab = false;
             }
 
             instance.name = objectName;
             return instance;
         }
 
-        private static void ApplyMaterial(GameObject target, Material material, Color fallbackColor)
+        private static void ApplyFallbackMaterial(GameObject target, bool usesPrefab, Material material, Color fallbackColor)
         {
+            if (usesPrefab)
+            {
+                return;
+            }
+
             var renderer = target.GetComponentInChildren<Renderer>();
             if (renderer == null)
             {
@@ -392,7 +448,7 @@ namespace PushBoxz.Presentation
             renderer.sharedMaterial = generated;
         }
 
-        private void FrameMainCamera(LevelDataAsset level)
+        private void FrameMainCamera(LevelDataAsset level, Vector3 cameraFrameOrigin)
         {
             var camera = Camera.main;
             if (camera == null)
@@ -400,7 +456,10 @@ namespace PushBoxz.Presentation
                 return;
             }
 
-            var center = mapper.GridToWorld(new Vector2Int(level.width - 1, level.height - 1)) * 0.5f;
+            var center = cameraFrameOrigin + new Vector3(
+                (level.width - 1) * mapper.CellSize * 0.5f,
+                0f,
+                (level.height - 1) * mapper.CellSize * 0.5f);
             var span = Mathf.Max(level.width, level.height) * mapper.CellSize;
             camera.transform.position = center + new Vector3(0f, span * 1.2f + 2f, -span * 0.35f - 2f);
             camera.transform.rotation = Quaternion.Euler(65f, 0f, 0f);

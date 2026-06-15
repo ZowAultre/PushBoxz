@@ -58,11 +58,13 @@ namespace PushBoxz.Editor
                 AssetDatabase.CreateAsset(registry, RegistryPath);
             }
 
-            var previousEntries = registry.levels
-                .Where(entry => entry != null && entry.level != null)
-                .GroupBy(entry => entry.level)
-                .ToDictionary(group => group.Key, group => group.First());
-            var entries = new List<LevelSceneBuilderRegistryEntry>();
+            var previousEntries = registry.levels != null
+                ? registry.levels
+                    .Where(entry => entry != null && entry.level != null)
+                    .GroupBy(entry => entry.level)
+                    .ToDictionary(group => group.Key, group => group.First())
+                : new Dictionary<LevelDataAsset, LevelSceneBuilderRegistryEntry>();
+            var playableLevels = new List<LevelDataAsset>();
             var usedIds = new HashSet<string>();
             var guids = AssetDatabase.FindAssets("t:LevelDataAsset", new[] { LevelsFolder });
             foreach (var guid in guids)
@@ -81,6 +83,36 @@ namespace PushBoxz.Editor
                     continue;
                 }
 
+                playableLevels.Add(level);
+            }
+
+            var entries = new List<LevelSceneBuilderRegistryEntry>();
+            var addedLevels = new HashSet<LevelDataAsset>();
+            if (registry.levels != null)
+            {
+                for (var i = 0; i < registry.levels.Count; i++)
+                {
+                    var previous = registry.levels[i];
+                    if (previous == null || previous.level == null || !playableLevels.Contains(previous.level) || !addedLevels.Add(previous.level))
+                    {
+                        continue;
+                    }
+
+                    entries.Add(new LevelSceneBuilderRegistryEntry
+                    {
+                        level = previous.level,
+                        enabled = previous.enabled,
+                        unlocked = previous.unlocked
+                    });
+                }
+            }
+
+            var newLevels = playableLevels
+                .Where(level => level != null && !addedLevels.Contains(level))
+                .OrderBy(level => level.levelId);
+            foreach (var level in newLevels)
+            {
+                addedLevels.Add(level);
                 if (previousEntries.TryGetValue(level, out var previous))
                 {
                     entries.Add(new LevelSceneBuilderRegistryEntry
@@ -89,19 +121,18 @@ namespace PushBoxz.Editor
                         enabled = previous.enabled,
                         unlocked = previous.unlocked
                     });
+                    continue;
                 }
-                else
+
+                entries.Add(new LevelSceneBuilderRegistryEntry
                 {
-                    entries.Add(new LevelSceneBuilderRegistryEntry
-                    {
-                        level = level,
-                        enabled = true,
-                        unlocked = entries.Count == 0
-                    });
-                }
+                    level = level,
+                    enabled = true,
+                    unlocked = entries.Count == 0
+                });
             }
 
-            registry.levels = entries.OrderBy(entry => entry.level.levelId).ToList();
+            registry.levels = entries;
             if (registry.levels.Count > 0 && !registry.levels.Any(entry => entry.unlocked))
             {
                 registry.levels[0].unlocked = true;

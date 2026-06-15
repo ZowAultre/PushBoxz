@@ -404,7 +404,7 @@ namespace PushBoxz.Editor
         private void CreateNewLevelAssetAndLoad()
         {
             EnsureLevelsFolder();
-            var newLevelId = GetUniqueLevelId("level_001");
+            var newLevelId = GetNewLevelIdFromOfficialRegistry();
             var asset = CreateLevelAsset(newLevelId);
             ApplyDefaultNewLevel(asset, newLevelId);
             EditorUtility.SetDirty(asset);
@@ -2102,7 +2102,16 @@ namespace PushBoxz.Editor
             }
 
             ApplyToAsset(asset);
-            var renameError = TryRenameAssetToLevelId(asset);
+            EditorUtility.SetDirty(asset);
+            AssetDatabase.SaveAssets();
+            var renameError = TryRenameAssetToLevelId(asset, out var renamedAsset);
+            if (renamedAsset != null)
+            {
+                asset = renamedAsset;
+                loadedAsset = renamedAsset;
+            }
+
+            ApplyToAsset(asset);
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -2159,6 +2168,39 @@ namespace PushBoxz.Editor
             }
 
             return candidate;
+        }
+
+        private string GetNewLevelIdFromOfficialRegistry()
+        {
+            var nextIndex = GetOfficialRegistryLevelCount() + 1;
+            var candidate = "L" + nextIndex.ToString("D3");
+            while (FindExistingAssetByLevelId(candidate) != null)
+            {
+                nextIndex++;
+                candidate = "L" + nextIndex.ToString("D3");
+            }
+
+            return candidate;
+        }
+
+        private int GetOfficialRegistryLevelCount()
+        {
+            if (sceneAssetRegistry == null)
+            {
+                sceneAssetRegistry = Resources.Load<LevelSceneBuilderRegistry>(PushBoxzLevelRegistryBuilder.RegistryResourceName);
+            }
+
+            if (sceneAssetRegistry == null)
+            {
+                sceneAssetRegistry = PushBoxzLevelRegistryBuilder.RebuildRegistryAsset();
+            }
+
+            if (sceneAssetRegistry == null || sceneAssetRegistry.levels == null)
+            {
+                return 0;
+            }
+
+            return sceneAssetRegistry.levels.Count(entry => entry != null && entry.level != null);
         }
 
         private void GeneratePreviewInScene()
@@ -2526,8 +2568,9 @@ namespace PushBoxz.Editor
             asset.solutionSteps = BuildForwardSolutionSteps();
         }
 
-        private string TryRenameAssetToLevelId(LevelDataAsset asset)
+        private string TryRenameAssetToLevelId(LevelDataAsset asset, out LevelDataAsset renamedAsset)
         {
+            renamedAsset = asset;
             var assetPath = AssetDatabase.GetAssetPath(asset);
             if (string.IsNullOrEmpty(assetPath))
             {
@@ -2544,7 +2587,15 @@ namespace PushBoxz.Editor
             var error = AssetDatabase.RenameAsset(assetPath, targetName);
             if (string.IsNullOrEmpty(error))
             {
-                asset.name = targetName;
+                var renamedPath = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(assetPath) ?? string.Empty, targetName), ".asset")
+                    .Replace("\\", "/");
+                renamedAsset = AssetDatabase.LoadAssetAtPath<LevelDataAsset>(renamedPath);
+                if (renamedAsset == null)
+                {
+                    renamedAsset = asset;
+                }
+
+                renamedAsset.name = targetName;
             }
 
             return error;

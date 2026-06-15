@@ -1,6 +1,7 @@
 using PushBoxz.Data;
 using PushBoxz.Presentation;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace PushBoxz.Editor
@@ -10,6 +11,7 @@ namespace PushBoxz.Editor
         private LevelSceneBuilderRegistry registry;
         private SerializedObject serializedRegistry;
         private SerializedProperty levelsProperty;
+        private ReorderableList levelList;
         private Vector2 scrollPosition;
 
         [MenuItem("Tools/PushBoxz/Level Registry")]
@@ -93,63 +95,112 @@ namespace PushBoxz.Editor
 
         private void DrawLevelList()
         {
-            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
+            if (levelList == null)
             {
-                GUILayout.Label("关卡资源", EditorStyles.boldLabel);
-                GUILayout.Label("启用", EditorStyles.boldLabel, GUILayout.Width(48f));
-                GUILayout.Label("解锁", EditorStyles.boldLabel, GUILayout.Width(48f));
-                GUILayout.Label(string.Empty, GUILayout.Width(52f));
+                CreateReorderableLevelList();
+            }
+
+            if (levelList == null)
+            {
+                return;
             }
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-            for (var i = 0; i < levelsProperty.arraySize; i++)
-            {
-                DrawEntryRow(i);
-            }
-
+            levelList.DoLayoutList();
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawEntryRow(int index)
+        private void CreateReorderableLevelList()
+        {
+            if (levelsProperty == null)
+            {
+                levelList = null;
+                return;
+            }
+
+            levelList = new ReorderableList(serializedRegistry, levelsProperty, true, true, true, true);
+            levelList.drawHeaderCallback = DrawLevelListHeader;
+            levelList.drawElementCallback = DrawEntryElement;
+            levelList.elementHeight = EditorGUIUtility.singleLineHeight + 8f;
+            levelList.onAddCallback = _ => AddEntry();
+            levelList.onRemoveCallback = RemoveSelectedEntry;
+            levelList.onReorderCallback = _ => MarkRegistryDirty();
+        }
+
+        private void DrawLevelListHeader(Rect rect)
+        {
+            const float toggleWidth = 54f;
+            const float deleteWidth = 56f;
+            var levelWidth = Mathf.Max(80f, rect.width - toggleWidth * 2f - deleteWidth - 20f);
+
+            EditorGUI.LabelField(new Rect(rect.x + 4f, rect.y, levelWidth, rect.height), "Level Asset", EditorStyles.boldLabel);
+            EditorGUI.LabelField(new Rect(rect.x + levelWidth + 8f, rect.y, toggleWidth, rect.height), "Enabled", EditorStyles.boldLabel);
+            EditorGUI.LabelField(new Rect(rect.x + levelWidth + toggleWidth + 8f, rect.y, toggleWidth, rect.height), "Unlocked", EditorStyles.boldLabel);
+        }
+
+        private void DrawEntryElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             var entryProperty = levelsProperty.GetArrayElementAtIndex(index);
             var levelProperty = entryProperty.FindPropertyRelative("level");
             var enabledProperty = entryProperty.FindPropertyRelative("enabled");
             var unlockedProperty = entryProperty.FindPropertyRelative("unlocked");
 
-            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
+            const float toggleWidth = 54f;
+            const float deleteWidth = 56f;
+            var lineHeight = EditorGUIUtility.singleLineHeight;
+            rect.y += 4f;
+            var levelWidth = Mathf.Max(80f, rect.width - toggleWidth * 2f - deleteWidth - 20f);
+            var levelRect = new Rect(rect.x + 4f, rect.y, levelWidth, lineHeight);
+            var enabledRect = new Rect(levelRect.xMax + 6f, rect.y, toggleWidth, lineHeight);
+            var unlockedRect = new Rect(enabledRect.xMax, rect.y, toggleWidth, lineHeight);
+            var deleteRect = new Rect(unlockedRect.xMax + 6f, rect.y, deleteWidth, lineHeight);
+
+            EditorGUI.BeginChangeCheck();
+            var nextLevel = (LevelDataAsset)EditorGUI.ObjectField(levelRect, levelProperty.objectReferenceValue, typeof(LevelDataAsset), false);
+            var nextEnabled = EditorGUI.Toggle(enabledRect, enabledProperty.boolValue);
+            var nextUnlocked = EditorGUI.Toggle(unlockedRect, unlockedProperty.boolValue);
+            if (EditorGUI.EndChangeCheck())
             {
-                var nextLevel = (LevelDataAsset)EditorGUILayout.ObjectField(levelProperty.objectReferenceValue, typeof(LevelDataAsset), false);
-                var nextEnabled = EditorGUILayout.Toggle(enabledProperty.boolValue, GUILayout.Width(48f));
-                var nextUnlocked = EditorGUILayout.Toggle(unlockedProperty.boolValue, GUILayout.Width(48f));
-
-                if (GUILayout.Button("删除", GUILayout.Width(48f)))
+                var previousLevel = levelProperty.objectReferenceValue as LevelDataAsset;
+                levelProperty.objectReferenceValue = nextLevel;
+                enabledProperty.boolValue = nextEnabled;
+                unlockedProperty.boolValue = nextUnlocked;
+                if (!nextUnlocked)
                 {
-                    var removedLevel = levelProperty.objectReferenceValue as LevelDataAsset;
-                    levelsProperty.DeleteArrayElementAtIndex(index);
-                    if (removedLevel != null)
-                    {
-                        LevelMenuController.ClearStoredLevelUnlock(removedLevel);
-                    }
-
-                    MarkRegistryDirty();
-                    return;
+                    LevelMenuController.ClearStoredLevelUnlock(nextLevel != null ? nextLevel : previousLevel);
                 }
 
-                if (nextLevel != levelProperty.objectReferenceValue || nextEnabled != enabledProperty.boolValue || nextUnlocked != unlockedProperty.boolValue)
-                {
-                    var previousLevel = levelProperty.objectReferenceValue as LevelDataAsset;
-                    levelProperty.objectReferenceValue = nextLevel;
-                    enabledProperty.boolValue = nextEnabled;
-                    unlockedProperty.boolValue = nextUnlocked;
-                    if (!nextUnlocked)
-                    {
-                        LevelMenuController.ClearStoredLevelUnlock(nextLevel != null ? nextLevel : previousLevel);
-                    }
-
-                    MarkRegistryDirty();
-                }
+                MarkRegistryDirty();
             }
+
+            if (GUI.Button(deleteRect, "Delete"))
+            {
+                RemoveEntryAt(index);
+            }
+        }
+
+        private void RemoveSelectedEntry(ReorderableList list)
+        {
+            if (list == null || list.index < 0 || list.index >= levelsProperty.arraySize)
+            {
+                return;
+            }
+
+            RemoveEntryAt(list.index);
+        }
+
+        private void RemoveEntryAt(int index)
+        {
+            var entryProperty = levelsProperty.GetArrayElementAtIndex(index);
+            var levelProperty = entryProperty.FindPropertyRelative("level");
+            var removedLevel = levelProperty.objectReferenceValue as LevelDataAsset;
+            levelsProperty.DeleteArrayElementAtIndex(index);
+            if (removedLevel != null)
+            {
+                LevelMenuController.ClearStoredLevelUnlock(removedLevel);
+            }
+
+            MarkRegistryDirty();
         }
 
         private void AddEntry()
@@ -209,6 +260,7 @@ namespace PushBoxz.Editor
             registry = nextRegistry;
             serializedRegistry = registry != null ? new SerializedObject(registry) : null;
             levelsProperty = serializedRegistry != null ? serializedRegistry.FindProperty("levels") : null;
+            CreateReorderableLevelList();
         }
 
         private void MarkRegistryDirty()

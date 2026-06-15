@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89da4e4125204e038569ce42442428b3, type: 3}
   m_Name: LevelSceneBuilderRegistry
   m_EditorClassIdentifier: 
-  floorPrefab: {fileID: 0}
+  floorPrefab: {fileID: 948241783951674151, guid: 711a5b69bd3dbc44296d5f62739f5f9f, type: 3}
   wallPrefab: {fileID: 948241783951674151, guid: 2730a692dc5947842b0269f4528cfbec, type: 3}
-  goalPrefab: {fileID: 0}
+  goalPrefab: {fileID: 5728041118714302878, guid: b1238508fdd35944b80a45b26a2182c9, type: 3}
   boxPrefab: {fileID: 5988899616108461610, guid: f600490dbac28c144b9c42971f17b99c, type: 3}
   playerPrefab: {fileID: 3758600951529465436, guid: b4238f210fea736438c7dba93d609773, type: 3}
   moveClip: {fileID: 8300000, guid: 934c387d28b38dc4d896a0bbf41353c8, type: 3}
@@ -22,44 +22,23 @@ MonoBehaviour:
   boxOnGoalClip: {fileID: 8300000, guid: 00f7de803e939c94fbf465611803f85b, type: 3}
   levelCompleteClip: {fileID: 8300000, guid: a1c412ec3b44b9c4ebad3f3bb2a464d8, type: 3}
   uiButtonClip: {fileID: 8300000, guid: 06a1e38c5873b9149b61f8264e8fb224, type: 3}
-  globalTmpFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  globalTmpFont: {fileID: 11400000, guid: 1dcdb1485a0b04248b617c1e8ffbf556, type: 2}
   levels:
-  - level: {fileID: 11400000, guid: ba987d0340eb2e04ca2bf98dec186b5a, type: 2}
+  - level: {fileID: 11400000, guid: 6f8ccce894b84074a99d14639de9973b, type: 2}
     enabled: 1
     unlocked: 1
-  - level: {fileID: 11400000, guid: 799cd86013314ba45adeb142fe6dfc73, type: 2}
+  - level: {fileID: 11400000, guid: c15e96815c40b3645abf64f71001649c, type: 2}
     enabled: 1
     unlocked: 1
-  - level: {fileID: 11400000, guid: adaad3fdff0b4004ab2907e077adb5ea, type: 2}
+  - level: {fileID: 11400000, guid: dd626e401e683924785f802a3dd08064, type: 2}
+    enabled: 1
+    unlocked: 1
+  - level: {fileID: 11400000, guid: 8bd65f685da26f54abdd28e0e1f30ee0, type: 2}
     enabled: 1
     unlocked: 0
-  - level: {fileID: 11400000, guid: 5896834b0c3a9dc4c97d60751e8cdc22, type: 2}
-    enabled: 1
-    unlocked: 1
-  - level: {fileID: 11400000, guid: d2a321af60162a34aaab0c3c7e036e8b, type: 2}
-    enabled: 1
-    unlocked: 1
-  - level: {fileID: 11400000, guid: b9f7d70a464d0ec4fa5f148664ca28c6, type: 2}
+  - level: {fileID: 11400000, guid: ea8706c039b9523459045a7b7b51277f, type: 2}
     enabled: 1
     unlocked: 0
   - level: {fileID: 11400000, guid: 92d9e1f0f1dc8184381e17646f2e69af, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: 380a6a2591d2a764fad3fdfef42a3175, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: 691931d8a896c1a498483ceccb70662f, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: dfad893fe02ad964da0bc579a95837bf, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: ad579cb895d101646837c4e30bc156d8, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: 37a1630b4c51dec4ab671bdfe1b0b461, type: 2}
-    enabled: 1
-    unlocked: 0
-  - level: {fileID: 11400000, guid: 8bd65f685da26f54abdd28e0e1f30ee0, type: 2}
     enabled: 1
     unlocked: 0
