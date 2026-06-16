@@ -22,7 +22,7 @@ MonoBehaviour:
   boxOnGoalClip: {fileID: 8300000, guid: 00f7de803e939c94fbf465611803f85b, type: 3}
   levelCompleteClip: {fileID: 8300000, guid: a1c412ec3b44b9c4ebad3f3bb2a464d8, type: 3}
   uiButtonClip: {fileID: 8300000, guid: 06a1e38c5873b9149b61f8264e8fb224, type: 3}
-  globalTmpFont: {fileID: 11400000, guid: 1dcdb1485a0b04248b617c1e8ffbf556, type: 2}
+  globalTmpFont: {fileID: 11400000, guid: cca30de067954d447a0328c34e678cfc, type: 2}
   levels:
   - level: {fileID: 11400000, guid: 6f8ccce894b84074a99d14639de9973b, type: 2}
     enabled: 1

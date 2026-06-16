@@ -13,7 +13,7 @@ namespace PushBoxz.Data
     {
         private const string FolderName = "CustomLevels";
         private const string FileName = "levels.json";
-        private const string LevelIdPrefix = "custom_";
+        private const string LevelIdPrefix = "C";
 
         [Serializable]
         private class CustomLevelCollection

@@ -36,6 +36,11 @@ namespace PushBoxz.Presentation
         [SerializeField] private Button levelButtonPrefab;
         [SerializeField] private Button toggleLevelModeButton;
         [SerializeField] private Button deleteCustomLevelButton;
+        [SerializeField] private InputField customLevelCodeInput;
+        [SerializeField] private TMP_InputField customLevelCodeTmpInput;
+        [SerializeField] private Button loadCustomLevelCodeButton;
+        [SerializeField] private Text customLevelCodeMessageText;
+        [SerializeField] private TMP_Text customLevelCodeMessageTmpText;
         [SerializeField] private Button previousPageButton;
         [SerializeField] private Button nextPageButton;
         [SerializeField] private Text pageText;
@@ -53,6 +58,7 @@ namespace PushBoxz.Presentation
         [SerializeField] private Button undoButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button returnToMenuButton;
+        [SerializeField] private Button shareButton;
 
         [Header("Canvas UI - Level Complete")]
         [SerializeField] private GameObject levelCompleteRoot;
@@ -114,6 +120,9 @@ namespace PushBoxz.Presentation
         private CustomInteractionMode customInteractionMode = CustomInteractionMode.Push;
         private bool customInteractionModeTouched;
         private string customEditorMessage = "Create a level, then save it to Creative Mode.";
+        private string customLevelCodeInputText = string.Empty;
+        private string customLevelCodeMessage = string.Empty;
+        private bool customGridPainting;
 
         private const int MinCustomLevelSize = 2;
         private const int MaxCustomLevelSize = 12;
@@ -215,6 +224,11 @@ namespace PushBoxz.Presentation
 
         private void Update()
         {
+            if (customGridPainting && !Input.GetMouseButton(0))
+            {
+                EndCustomGridPaint();
+            }
+
             if (screen == MenuScreen.CustomLevelEditor)
             {
                 HandleCustomEditorKeyboardInput();
@@ -324,6 +338,23 @@ namespace PushBoxz.Presentation
             {
                 PlayUiButtonSound();
                 ToggleCustomLevelDeleteMode();
+            }
+
+            if (levelListMode == LevelListMode.Custom)
+            {
+                GUILayout.Space(6f);
+                GUILayout.Label("Import Level Code");
+                customLevelCodeInputText = GUILayout.TextField(customLevelCodeInputText ?? string.Empty);
+                if (GUILayout.Button("Load", GUILayout.Height(30f)))
+                {
+                    PlayUiButtonSound();
+                    LoadCustomLevelCode();
+                }
+
+                if (!string.IsNullOrEmpty(customLevelCodeMessage))
+                {
+                    GUILayout.Label(customLevelCodeMessage);
+                }
             }
 
             GUILayout.Space(12f);
@@ -508,6 +539,33 @@ namespace PushBoxz.Presentation
             }
 
             SyncCustomGridButtons();
+        }
+
+        private void PaintCustomCellFromPointer(Vector2Int position)
+        {
+            PlayUiButtonSound();
+            PaintCustomCell(position);
+        }
+
+        private void BeginCustomGridPaint(Vector2Int position)
+        {
+            customGridPainting = true;
+            PaintCustomCellFromPointer(position);
+        }
+
+        private void ContinueCustomGridPaint(Vector2Int position)
+        {
+            if (!customGridPainting || !Input.GetMouseButton(0))
+            {
+                return;
+            }
+
+            PaintCustomCell(position);
+        }
+
+        private void EndCustomGridPaint()
+        {
+            customGridPainting = false;
         }
 
         private void HandleCustomEditorKeyboardInput()
@@ -871,6 +929,11 @@ namespace PushBoxz.Presentation
 
         private void SaveCustomLevel()
         {
+            if (TryLoadCustomLevelCodeIntoEditor())
+            {
+                return;
+            }
+
             var level = BuildCustomLevelData();
             if (!CustomLevelStorage.ValidatePlayable(level, out var message))
             {
@@ -893,6 +956,154 @@ namespace PushBoxz.Presentation
             RefreshLevelEntries();
             MarkLevelSelectDirty();
             SyncCustomEditorUi();
+        }
+
+        private bool TryLoadCustomLevelCodeIntoEditor()
+        {
+            var rawInput = customLevelId != null ? customLevelId.Trim() : string.Empty;
+            if (!LooksLikeLevelCode(rawInput))
+            {
+                return false;
+            }
+
+            if (!CustomLevelCodeCodec.TryDecode(rawInput, out var level, out var message))
+            {
+                customEditorMessage = message;
+                SyncCustomEditorUi();
+                return true;
+            }
+
+            LoadCustomLevelIntoEditor(level);
+            Destroy(level);
+            customEditorMessage = "Level code loaded into editor.";
+            SyncCustomEditorUi();
+            return true;
+        }
+
+        private static bool LooksLikeLevelCode(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var trimmed = value.Trim();
+            return trimmed.StartsWith("PBZ1", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void LoadCustomLevelIntoEditor(LevelDataAsset level)
+        {
+            if (level == null)
+            {
+                return;
+            }
+
+            var size = Mathf.Clamp(Mathf.Max(level.width, level.height), MinCustomLevelSize, MaxCustomLevelSize);
+            ResizeCustomGrid(size, size);
+            for (var y = 0; y < customHeight; y++)
+            {
+                for (var x = 0; x < customWidth; x++)
+                {
+                    customTiles[x, y] = BaseTileType.Floor;
+                }
+            }
+
+            customGoals.Clear();
+            if (level.cells != null)
+            {
+                for (var i = 0; i < level.cells.Count; i++)
+                {
+                    var cell = level.cells[i];
+                    if (cell == null || cell.x < 0 || cell.y < 0 || cell.x >= customWidth || cell.y >= customHeight)
+                    {
+                        continue;
+                    }
+
+                    customTiles[cell.x, cell.y] = cell.baseType;
+                    if (cell.hasGoal)
+                    {
+                        customGoals.Add(new Vector2Int(cell.x, cell.y));
+                    }
+                }
+            }
+
+            customBoxes.Clear();
+            if (level.boxStarts != null)
+            {
+                for (var i = 0; i < level.boxStarts.Count; i++)
+                {
+                    var box = level.boxStarts[i];
+                    if (IsInsideCustomGrid(box))
+                    {
+                        customBoxes.Add(box);
+                    }
+                }
+            }
+
+            customPlayerStart = level.playerStart;
+            customHasPlayer = IsInsideCustomGrid(customPlayerStart);
+            customPlayerFacing = Direction.Up;
+            customLevelId = string.Empty;
+            RebuildCustomGridButtons();
+        }
+
+        private void ShareActiveLevelCode()
+        {
+            if (activeEntry == null || activeEntry.level == null)
+            {
+                Debug.LogWarning("No active level to share.", this);
+                return;
+            }
+
+            if (!CustomLevelCodeCodec.TryEncode(activeEntry.level, out var code, out var message))
+            {
+                Debug.LogWarning("Failed to create level code: " + message, this);
+                return;
+            }
+
+            GUIUtility.systemCopyBuffer = code;
+            Debug.Log("Level code copied: " + code, this);
+        }
+
+        private void LoadCustomLevelCode()
+        {
+            customLevelCodeInputText = GetCustomLevelCodeInputText();
+            if (!CustomLevelCodeCodec.TryDecode(customLevelCodeInputText, out var importedLevel, out var message))
+            {
+                customLevelCodeMessage = message;
+                SyncCustomLevelCodeImportUi();
+                return;
+            }
+
+            var savedLevel = CustomLevelStorage.SaveLevel(importedLevel);
+            Destroy(importedLevel);
+            if (savedLevel == null)
+            {
+                customLevelCodeMessage = "Load failed.";
+                SyncCustomLevelCodeImportUi();
+                return;
+            }
+
+            var savedId = savedLevel.levelId;
+            Destroy(savedLevel);
+            customLevelCodeInputText = string.Empty;
+            customLevelCodeMessage = "Loaded: " + savedId;
+            levelListMode = LevelListMode.Custom;
+            customLevelDeleteMode = false;
+            RefreshLevelEntries();
+            currentPage = GetPageForLevelId(savedId);
+            MarkLevelSelectDirty();
+            SyncCanvasUi();
+        }
+
+        private string GetCustomLevelCodeInputText()
+        {
+            if (customLevelCodeTmpInput != null)
+            {
+                return customLevelCodeTmpInput.text;
+            }
+
+            return customLevelCodeInput != null ? customLevelCodeInput.text : customLevelCodeInputText;
         }
 
         private void StartNextLevel()
@@ -1045,6 +1256,24 @@ namespace PushBoxz.Presentation
                 deleteCustomLevelButton.onClick.AddListener(OnDeleteCustomLevelButtonClicked);
             }
 
+            if (loadCustomLevelCodeButton != null)
+            {
+                loadCustomLevelCodeButton.onClick.RemoveListener(OnLoadCustomLevelCodeButtonClicked);
+                loadCustomLevelCodeButton.onClick.AddListener(OnLoadCustomLevelCodeButtonClicked);
+            }
+
+            if (customLevelCodeInput != null)
+            {
+                customLevelCodeInput.onValueChanged.RemoveListener(OnCustomLevelCodeInputChanged);
+                customLevelCodeInput.onValueChanged.AddListener(OnCustomLevelCodeInputChanged);
+            }
+
+            if (customLevelCodeTmpInput != null)
+            {
+                customLevelCodeTmpInput.onValueChanged.RemoveListener(OnCustomLevelCodeInputChanged);
+                customLevelCodeTmpInput.onValueChanged.AddListener(OnCustomLevelCodeInputChanged);
+            }
+
             if (previousPageButton != null)
             {
                 previousPageButton.onClick.RemoveListener(OnPreviousPageButtonClicked);
@@ -1074,6 +1303,21 @@ namespace PushBoxz.Presentation
             if (deleteCustomLevelButton != null)
             {
                 deleteCustomLevelButton.onClick.RemoveListener(OnDeleteCustomLevelButtonClicked);
+            }
+
+            if (loadCustomLevelCodeButton != null)
+            {
+                loadCustomLevelCodeButton.onClick.RemoveListener(OnLoadCustomLevelCodeButtonClicked);
+            }
+
+            if (customLevelCodeInput != null)
+            {
+                customLevelCodeInput.onValueChanged.RemoveListener(OnCustomLevelCodeInputChanged);
+            }
+
+            if (customLevelCodeTmpInput != null)
+            {
+                customLevelCodeTmpInput.onValueChanged.RemoveListener(OnCustomLevelCodeInputChanged);
             }
 
             if (previousPageButton != null)
@@ -1111,6 +1355,12 @@ namespace PushBoxz.Presentation
                 returnToMenuButton.onClick.RemoveListener(OnReturnToMenuButtonClicked);
                 returnToMenuButton.onClick.AddListener(OnReturnToMenuButtonClicked);
             }
+
+            if (shareButton != null)
+            {
+                shareButton.onClick.RemoveListener(OnShareButtonClicked);
+                shareButton.onClick.AddListener(OnShareButtonClicked);
+            }
         }
 
         private void UnbindGameplayHudButtons()
@@ -1128,6 +1378,11 @@ namespace PushBoxz.Presentation
             if (returnToMenuButton != null)
             {
                 returnToMenuButton.onClick.RemoveListener(OnReturnToMenuButtonClicked);
+            }
+
+            if (shareButton != null)
+            {
+                shareButton.onClick.RemoveListener(OnShareButtonClicked);
             }
         }
 
@@ -1327,6 +1582,18 @@ namespace PushBoxz.Presentation
             ToggleCustomLevelDeleteMode();
         }
 
+        private void OnLoadCustomLevelCodeButtonClicked()
+        {
+            PlayUiButtonSound();
+            LoadCustomLevelCode();
+        }
+
+        private void OnCustomLevelCodeInputChanged(string value)
+        {
+            customLevelCodeInputText = value;
+            customLevelCodeMessage = string.Empty;
+        }
+
         private void OnPreviousPageButtonClicked()
         {
             PlayUiButtonSound();
@@ -1361,6 +1628,12 @@ namespace PushBoxz.Presentation
         {
             PlayUiButtonSound();
             ReturnToMenu();
+        }
+
+        private void OnShareButtonClicked()
+        {
+            PlayUiButtonSound();
+            ShareActiveLevelCode();
         }
 
         private void OnContinueButtonClicked()
@@ -1508,6 +1781,26 @@ namespace PushBoxz.Presentation
             SyncCanvasUi();
         }
 
+        private int GetPageForLevelId(string levelId)
+        {
+            if (string.IsNullOrWhiteSpace(levelId))
+            {
+                return currentPage;
+            }
+
+            var pageSize = Mathf.Max(1, columnsPerPage * rowsPerPage);
+            for (var i = 0; i < levelEntries.Count; i++)
+            {
+                var entry = levelEntries[i];
+                if (entry != null && entry.level != null && entry.level.levelId == levelId)
+                {
+                    return i / pageSize;
+                }
+            }
+
+            return currentPage;
+        }
+
         private void MarkLevelSelectDirty()
         {
             levelSelectDirty = true;
@@ -1550,6 +1843,7 @@ namespace PushBoxz.Presentation
             {
                 UpdateLevelModeButtonLabel();
                 SyncCustomLevelDeleteButton();
+                SyncCustomLevelCodeImportUi();
                 RebuildLevelSelectButtonsIfNeeded();
             }
 
@@ -1592,6 +1886,11 @@ namespace PushBoxz.Presentation
             if (restartButton != null)
             {
                 restartButton.interactable = hasSession;
+            }
+
+            if (shareButton != null)
+            {
+                shareButton.interactable = hasSession && activeEntry != null && activeEntry.level != null;
             }
         }
 
@@ -1647,15 +1946,47 @@ namespace PushBoxz.Presentation
                     ClearButtonLabel(button);
                     ApplyGlobalTmpFontToRoot(button.gameObject);
                     button.onClick.RemoveAllListeners();
-                    button.onClick.AddListener(() =>
-                    {
-                        PlayUiButtonSound();
-                        PaintCustomCell(position);
-                    });
+                    BindCustomGridPaintEvents(button, position);
                 }
             }
 
             SyncCustomGridButtons();
+        }
+
+        private void BindCustomGridPaintEvents(Button button, Vector2Int position)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            var trigger = button.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = button.gameObject.AddComponent<EventTrigger>();
+            }
+
+            trigger.triggers.Clear();
+            AddCustomGridEventTrigger(trigger, EventTriggerType.PointerDown, _ => BeginCustomGridPaint(position));
+            AddCustomGridEventTrigger(trigger, EventTriggerType.PointerEnter, _ => ContinueCustomGridPaint(position));
+            AddCustomGridEventTrigger(trigger, EventTriggerType.PointerUp, _ => EndCustomGridPaint());
+            AddCustomGridEventTrigger(trigger, EventTriggerType.PointerExit, _ =>
+            {
+                if (!Input.GetMouseButton(0))
+                {
+                    EndCustomGridPaint();
+                }
+            });
+        }
+
+        private static void AddCustomGridEventTrigger(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+        {
+            var entry = new EventTrigger.Entry
+            {
+                eventID = eventType
+            };
+            entry.callback.AddListener(callback);
+            trigger.triggers.Add(entry);
         }
 
         private void SyncCustomGridLayoutGroup()
@@ -2032,6 +2363,37 @@ namespace PushBoxz.Presentation
             if (show)
             {
                 SetButtonLabel(deleteCustomLevelButton, customLevelDeleteMode ? "Select" : "Delete");
+            }
+        }
+
+        private void SyncCustomLevelCodeImportUi()
+        {
+            var show = levelListMode == LevelListMode.Custom;
+            SetGameObjectActive(customLevelCodeInput != null ? customLevelCodeInput.gameObject : null, show);
+            SetGameObjectActive(customLevelCodeTmpInput != null ? customLevelCodeTmpInput.gameObject : null, show);
+            SetGameObjectActive(loadCustomLevelCodeButton != null ? loadCustomLevelCodeButton.gameObject : null, show);
+            SetGameObjectActive(customLevelCodeMessageText != null ? customLevelCodeMessageText.gameObject : null, show);
+            SetGameObjectActive(customLevelCodeMessageTmpText != null ? customLevelCodeMessageTmpText.gameObject : null, show);
+
+            if (!show)
+            {
+                return;
+            }
+
+            SetInputTextWithoutNotify(customLevelCodeInput, customLevelCodeInputText);
+            SetInputTextWithoutNotify(customLevelCodeTmpInput, customLevelCodeInputText);
+            SetLabelText(customLevelCodeMessageText, customLevelCodeMessageTmpText, customLevelCodeMessage);
+            if (loadCustomLevelCodeButton != null)
+            {
+                SetButtonLabel(loadCustomLevelCodeButton, "Load");
+            }
+        }
+
+        private static void SetGameObjectActive(GameObject target, bool active)
+        {
+            if (target != null && target.activeSelf != active)
+            {
+                target.SetActive(active);
             }
         }
 
