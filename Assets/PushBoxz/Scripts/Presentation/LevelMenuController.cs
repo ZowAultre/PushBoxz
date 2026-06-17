@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
 using PushBoxz.Core;
 using PushBoxz.Data;
 using TMPro;
@@ -18,6 +21,15 @@ namespace PushBoxz.Presentation
         private const string RuntimeHostName = "PushBoxz Runtime Host";
         private const string ClearKeyPrefix = "PushBoxz.LevelCleared.";
         private const string UnlockKeyPrefix = "PushBoxz.LevelUnlocked.";
+        private const string WebLevelCodeCallbackName = nameof(OnWebLevelCodeSubmitted);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void PushBoxzCopyText(string text);
+
+        [DllImport("__Internal")]
+        private static extern void PushBoxzPromptLevelCode(string objectName, string methodName);
+#endif
 
         [SerializeField] private LevelSceneBuilderRegistry registry;
         [SerializeField] private LevelSceneBuilder sceneBuilderTemplate;
@@ -951,7 +963,10 @@ namespace PushBoxz.Presentation
             }
 
             customLevelId = savedLevel.levelId;
-            customEditorMessage = "Saved to Creative Mode: " + customLevelId;
+            var copiedCode = TryCopyLevelCodeToClipboard(savedLevel, out var copyMessage);
+            customEditorMessage = copiedCode
+                ? "Saved and copied level code: " + customLevelId
+                : "Saved to Creative Mode: " + customLevelId + ". " + copyMessage;
             levelListMode = LevelListMode.Custom;
             RefreshLevelEntries();
             MarkLevelSelectDirty();
@@ -1055,19 +1070,44 @@ namespace PushBoxz.Presentation
                 return;
             }
 
-            if (!CustomLevelCodeCodec.TryEncode(activeEntry.level, out var code, out var message))
+            if (!TryCopyLevelCodeToClipboard(activeEntry.level, out var message))
             {
-                Debug.LogWarning("Failed to create level code: " + message, this);
+                Debug.LogWarning("Failed to copy level code: " + message, this);
                 return;
             }
 
+            Debug.Log(message, this);
+        }
+
+        private bool TryCopyLevelCodeToClipboard(LevelDataAsset level, out string message)
+        {
+            if (!CustomLevelCodeCodec.TryEncode(level, out var code, out message))
+            {
+                return false;
+            }
+
             GUIUtility.systemCopyBuffer = code;
-            Debug.Log("Level code copied: " + code, this);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PushBoxzCopyText(code);
+#endif
+            message = "Level code copied: " + code;
+            return true;
         }
 
         private void LoadCustomLevelCode()
         {
             customLevelCodeInputText = GetCustomLevelCodeInputText();
+            if (string.IsNullOrWhiteSpace(customLevelCodeInputText) && TryOpenWebLevelCodePrompt())
+            {
+                return;
+            }
+
+            LoadCustomLevelCode(customLevelCodeInputText);
+        }
+
+        private void LoadCustomLevelCode(string code)
+        {
+            customLevelCodeInputText = code;
             if (!CustomLevelCodeCodec.TryDecode(customLevelCodeInputText, out var importedLevel, out var message))
             {
                 customLevelCodeMessage = message;
@@ -1104,6 +1144,22 @@ namespace PushBoxz.Presentation
             }
 
             return customLevelCodeInput != null ? customLevelCodeInput.text : customLevelCodeInputText;
+        }
+
+        private bool TryOpenWebLevelCodePrompt()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PushBoxzPromptLevelCode(gameObject.name, WebLevelCodeCallbackName);
+            return true;
+#else
+            return false;
+#endif
+        }
+
+        public void OnWebLevelCodeSubmitted(string code)
+        {
+            customLevelCodeInputText = code;
+            LoadCustomLevelCode(code);
         }
 
         private void StartNextLevel()
